@@ -14,9 +14,9 @@ int main(){
     Camera camera(Vec3f(0, 0, 5),Vec3f(0, 0, -10),Vec3f (0, 1, 0));
     camera.set_projection(45, 1, 0.1, 50);
 //    std::vector<Vertex> vertices{ Vertex(0.5, -1, -1), {0, 1, -1}, {-1, 0, -1}};
-    std::vector<Vertex> vertices{ Vertex( Vec4f(0.5, -1, -1, 1)),
-                                  Vertex( Vec4f(0, 1, -1, 1)),
-                                  Vertex( Vec4f(-1, 0, -1, 1)) };
+    std::vector<Vertex> vertices{ Vertex(Vec4f(0.f, 0.8f, -1, 1), Red),
+                                  Vertex(Vec4f(-1, -0.5f, -1, 1), Green),
+                                  Vertex(Vec4f(0.8, -0.8f, -1, 1), Blue) };
     std::vector<Vec3i> ind{{0, 1, 2}};
 
     Vertex_Buf_ID posBufId = rasterizer.set_vertex_buffer(vertices);

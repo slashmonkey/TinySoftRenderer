@@ -29,9 +29,9 @@ public:
 
 public:
     Vec4f pos;
-    Color color;
     Vec3f normal;
     Vec2f texcoord;
+    Color color;
 };
 
 class VertexOut{
@@ -75,6 +75,28 @@ private:
     Vertex v0;
     Vertex v1;
     Vertex v2;
+};
+
+class TriangleOut{
+public:
+    TriangleOut() {};
+    TriangleOut(VertexOut v0, VertexOut v1, VertexOut v2) :v0(v0), v1(v1), v2(v2) {}
+    TriangleOut(const TriangleOut& t) { v0 = t.get_v0(); v1 = t.get_v1(); v2 = t.get_v2(); }
+    TriangleOut& operator=(const TriangleOut& t) { v0 = t.get_v0(); v1 = t.get_v1(); v2 = t.get_v2(); return *this; }
+    ~TriangleOut() {}
+
+    void set_v0(const VertexOut& A) { v0 = A; };
+    VertexOut get_v0() const { return v0; };
+
+    void set_v1(const VertexOut& B) { v1 = B; };
+    VertexOut get_v1() const { return v1; };
+
+    void set_v2(const VertexOut& C) { v2 = C; };
+    VertexOut get_v2() const { return v2; };
+private:
+    VertexOut v0;
+    VertexOut v1;
+    VertexOut v2;
 };
 
 #endif //SOFTRENDERER_GEOMETRY_H

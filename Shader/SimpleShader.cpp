@@ -12,6 +12,12 @@ VertexOut SimpleShader::vertex(const Vertex& in) {
     return out;
 }
 
+Color SimpleShader::fragment(const VertexOut& vertex_out) {
+    Color fragColor;
+    fragColor = vertex_out.color;
+    return fragColor;
+}
+
 void SimpleShader::set_model_matrix(const Mat4f& model) {
 
 }

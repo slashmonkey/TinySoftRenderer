@@ -9,6 +9,7 @@ struct SimpleShader : IShader{
     virtual ~SimpleShader() = default;
 
     virtual VertexOut vertex(const Vertex& in);
+    virtual Color fragment(const VertexOut& vertex_out);
     virtual void set_model_matrix(const Mat4f& model);
     virtual void set_view_matrix(const Mat4f& view);
     virtual void set_proj_matrix(const Mat4f& proj);

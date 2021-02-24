@@ -39,6 +39,8 @@ template <typename T> struct Vector2{
     bool operator ==(const Vector2& v) const {return x == v.x && y == v.y;}
     bool operator !=(const Vector2& v) const {return x != v.x || y != v.y;}
 
+    Vector2<T> lerp(const Vector2<T>& v2, float weight) const {return (*this) * (1 - weight) + v2 * weight;}
+
     template<typename> friend std::ostream& operator<<(std::ostream& s, Vector2<T>& v);
 };
 
@@ -78,6 +80,8 @@ template <typename T> struct Vector3{
     bool operator ==(const Vector3& v) const {return x == v.x && y == v.y && z == v.z;}
     bool operator !=(const Vector3& v) const {return x != v.x || y != v.y || z != v.z;}
 
+    Vector3<T> lerp(const Vector3<T>& v2, float weight) const {return (*this) * (1 - weight) + v2 * weight;}
+
     template<typename> friend std::ostream& operator<<(std::ostream& s, Vector3<T>& v);
 };
 
@@ -109,6 +113,8 @@ template <typename T> struct Vector4{
 
     bool operator ==(const Vector4& v) const {return x == v.x && y == v.y && z == v.z && w == v.w;}
     bool operator !=(const Vector4& v) const {return !((*this) == v);}
+
+    Vector4<T> lerp(const Vector4<T>& v2, float weight) const {return (*this) * (1 - weight) + v2 * weight;}
 
     template<typename> friend std::ostream& operator<<(std::ostream& s, Vector4<T>& v);
 };

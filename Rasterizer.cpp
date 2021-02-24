@@ -23,73 +23,69 @@ Ind_Buf_ID Rasterizer::set_index_buffer(const std::vector<Vec3i>& indices) {
 }
 
 // Bresenham's line drawing algorithm
-void Rasterizer::draw_line(const Vertex& begin, const Vertex& end) {
-    auto x1 = begin.x();
-    auto y1 = begin.y();
-    auto x2 = end.x();
-    auto y2 = end.y();
+void Rasterizer::draw_line(const VertexOut& from, const VertexOut& to) {
+    int dx = to.pos_homo.x - from.pos_homo.x;
+    int dy = to.pos_homo.y - from.pos_homo.y;
+    int stepX = 1, stepY = 1;
 
-    Color line_color(255.f, 255.f, 255.f);
+    // judge the sign
+    if(dx < 0)
+    {
+        stepX = -1;
+        dx = -dx;
+    }
+    if(dy < 0)
+    {
+        stepY = -1;
+        dy = -dy;
+    }
 
-    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
+    int d2x = 2*dx, d2y = 2*dy;
+    int d2y_minus_d2x = d2y - d2x;
+    int sx = from.pos_homo.x;
+    int sy = from.pos_homo.y;
 
-    dx=x2-x1;
-    dy=y2-y1;
-    dx1=fabs(dx);
-    dy1=fabs(dy);
-    px=2*dy1-dx1;
-    py=2*dx1-dy1;
-
-    if(dy1<=dx1){
-        if(dx>=0){
-            x=x1; y=y1; xe=x2;
-        }else{
-            x=x2; y=y2; xe=x1;
-        }
-        Vec3f point = Vec3f (x, y, 1.0f);
-        set_pixel(point, line_color);
-        for(i=0;x<xe;i++){
-            x=x+1;
-            if(px<0){
-                px=px+2*dy1;
-            }else{
-                if((dx<0 && dy<0) || (dx>0 && dy>0)){
-                    y=y+1;
-                }else{
-                    y=y-1;
-                }
-                px=px+2*(dy1-dx1);
+    VertexOut tmp;
+    // slope < 1.
+    if(dy <= dx)
+    {
+        int flag = d2y - dx;
+        for(int i = 0;i <= dx;++ i)
+        {
+            // linear interpolation
+            tmp = lerp(from, to, static_cast<double>(i)/dx);
+            // fragment shader
+            Vec3f point(sx, sy, 1.f);
+            set_pixel(point, shader_ptr->fragment(tmp));
+            sx += stepX;
+            if(flag <= 0)
+                flag += d2y;
+            else
+            {
+                sy += stepY;
+                flag += d2y_minus_d2x;
             }
-            Vec3f point = Vec3f (x, y, 1.0f);
-            set_pixel(point,line_color);
         }
     }
-    else{
-        if(dy>=0){
-            x=x1;
-            y=y1;
-            ye=y2;
-        }else{
-            x=x2;
-            y=y2;
-            ye=y1;
-        }
-        Vec3f point = Vec3f (x, y, 1.0f);
-        set_pixel(point,line_color);
-        for(i=0;y<ye;i++){
-            y=y+1;
-            if(py<=0){
-                py=py+2*dx1;
-            }else{
-                if((dx<0 && dy<0) || (dx>0 && dy>0)){
-                    x=x+1;
-                }else{
-                    x=x-1;
-                }
-                py=py+2*(dx1-dy1);
+        // slope < 1.
+    else
+    {
+        int flag = d2x - dy;
+        for(int i = 0;i <= dy;++ i)
+        {
+            // linear interpolation
+            tmp = lerp(from, to, static_cast<double>(i)/dy);
+            // fragment shader
+            Vec3f point(sx, sy, 1.f);
+            set_pixel(point, shader_ptr->fragment(tmp));
+            sy += stepY;
+            if(flag <= 0)
+                flag += d2x;
+            else
+            {
+                sx += stepX;
+                flag -= d2y_minus_d2x;
             }
-            Vec3f point = Vec3f (x, y, 1.0f);
-            set_pixel(point,line_color);
         }
     }
 }
@@ -106,9 +102,6 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
     std::cout << projection << std::endl;
 
     for(Vec3i ind : indBuf){
-        //! primitives assembly to triangle.
-        Triangle triangle;
-
         //! vertex shader stage.
         VertexOut vertexOut[] = {
                 shader_ptr->vertex(posBuf[0]),
@@ -116,30 +109,27 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
                 shader_ptr->vertex(posBuf[2]),
         };
 
-        //! fragment shader stage.
         for(VertexOut& v : vertexOut){
             perspective_division(v);//NDC
             v.pos_homo = viewport * v.pos_homo;//viewport transformation
         }
 
-        Vertex vertices[] = {
-                Vertex(vertexOut[0].pos_homo),
-                Vertex(vertexOut[1].pos_homo),
-                Vertex(vertexOut[2].pos_homo)
-        };
+        TriangleOut triangleOut;
 
-        triangle.set_v0(vertices[0]);
-        triangle.set_v1(vertices[1]);
-        triangle.set_v2(vertices[2]);
+        triangleOut.set_v0(vertexOut[0]);
+        triangleOut.set_v1(vertexOut[1]);
+        triangleOut.set_v2(vertexOut[2]);
 
-        //! rasterization
+        //! fragment shader stage. rasterization
         if (mode == RenderMode::Wire){
-            rasterize_wireframe(triangle);
+            rasterize_wireframe(triangleOut);
+        }else{
+
         }
     }
 }
 
-void Rasterizer::rasterize_wireframe(const Triangle& triangle) {
+void Rasterizer::rasterize_wireframe(const TriangleOut& triangle) {
     draw_line(triangle.get_v0(), triangle.get_v1());
     draw_line(triangle.get_v1(), triangle.get_v2());
     draw_line(triangle.get_v2(), triangle.get_v0());
@@ -191,4 +181,15 @@ void Rasterizer::perspective_division(VertexOut& vertex) {
 
 void Rasterizer::clear(Buffers buffer) {
     framebuffer_ptr->clear(buffer);
+}
+
+VertexOut Rasterizer::lerp(const VertexOut& v1, const VertexOut& v2, float weight) {
+    VertexOut vertexOut;
+    vertexOut.color = v1.color.lerp(v2.color, weight);
+    vertexOut.normal = v1.normal.lerp(v2.normal, weight);
+    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
+    vertexOut.pos_world = v1.pos_world.lerp(v2.pos_world, weight);
+    vertexOut.pos_homo = v1.pos_homo.lerp(v2.pos_homo, weight);
+    vertexOut.rhw = v1.rhw * (1-weight) + v2.rhw * weight;
+    return vertexOut;
 }

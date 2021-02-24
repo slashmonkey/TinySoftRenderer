@@ -43,6 +43,7 @@ public:
     void set_pixel(const Vec3f& point, const Color& color);
     void clear(Buffers buffer);
     void draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mode);
+    VertexOut lerp(const VertexOut& v1, const VertexOut& v2, float weight);
 
     void set_model(const Mat4f& _model);
     void set_view(const Mat4f& _view);
@@ -51,11 +52,10 @@ public:
     void perspective_division(VertexOut& vertex);
 
 private:
-    void draw_line(const Vertex& begin, const Vertex& end);
-    void rasterize_wireframe(const Triangle& triangle);
+    void draw_line(const VertexOut& begin, const VertexOut& end);
+    void rasterize_wireframe(const TriangleOut& triangle);
 
 private:
-
     std::shared_ptr<FrameBuffer> framebuffer_ptr;
     std::shared_ptr<SimpleShader> shader_ptr;
 
