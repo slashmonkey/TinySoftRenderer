@@ -124,7 +124,7 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
         if (mode == RenderMode::Wire){
             rasterize_wireframe(triangleOut);
         }else{
-
+            edge_walking_fill(triangleOut);
         }
     }
 }
@@ -133,6 +133,123 @@ void Rasterizer::rasterize_wireframe(const TriangleOut& triangle) {
     draw_line(triangle.get_v0(), triangle.get_v1());
     draw_line(triangle.get_v1(), triangle.get_v2());
     draw_line(triangle.get_v2(), triangle.get_v0());
+}
+
+void Rasterizer::scan_line_per_row(const VertexOut &left, const VertexOut &right)
+{
+    VertexOut current;
+    int length = right.pos_homo.x - left.pos_homo.x + 1;
+    for(int i = 0;i <= length;++i)
+    {
+        // linear interpolation
+        double weight = static_cast<double>(i)/length;
+        current = lerp(left, right, weight);
+        current.pos_homo.x = left.pos_homo.x + i;
+        current.pos_homo.y = left.pos_homo.y;
+        // fragment shade
+        Vec3f point(current.pos_homo.x, current.pos_homo.y, 1.f);
+        set_pixel(point, shader_ptr->fragment(current));
+    }
+}
+
+void Rasterizer::rasterize_top_triangle(VertexOut &v1, VertexOut &v2, VertexOut &v3)
+{
+    VertexOut left = v2;
+    VertexOut right = v3;
+    VertexOut dest = v1;
+    VertexOut tmp, newleft, newright;
+    if(left.pos_homo.x > right.pos_homo.x)
+    {
+        tmp = left;
+        left = right;
+        right = tmp;
+    }
+    int dy = left.pos_homo.y - dest.pos_homo.y + 1;
+
+    for(int i = 0;i < dy;++i)
+    {
+        double weight = 0;
+        if(dy != 0)
+            weight = static_cast<double>(i)/dy;
+        newleft = lerp(left, dest, weight);
+        newright = lerp(right, dest, weight);
+        newleft.pos_homo.y = newright.pos_homo.y = left.pos_homo.y - i;
+        scan_line_per_row(newleft, newright);
+    }
+}
+
+void Rasterizer::rasterize_bottom_triangle(VertexOut &v1, VertexOut &v2, VertexOut &v3)
+{
+    VertexOut left = v1;
+    VertexOut right = v2;
+    VertexOut dest = v3;
+    VertexOut tmp, newleft, newright;
+    if(left.pos_homo.x > right.pos_homo.x)
+    {
+        tmp = left;
+        left = right;
+        right = tmp;
+    }
+    int dy = dest.pos_homo.y - left.pos_homo.y + 1;
+
+
+    for(int i = 0;i < dy;++i)
+    {
+        double weight = 0;
+        if(dy != 0)
+            weight = static_cast<double>(i)/dy;
+        newleft = lerp(left, dest, weight);
+        newright = lerp(right, dest, weight);
+        newleft.pos_homo.y = newright.pos_homo.y = left.pos_homo.y + i;
+        scan_line_per_row(newleft, newright);
+    }
+}
+
+void Rasterizer::edge_walking_fill(const TriangleOut& triangleOut)
+{
+
+    // split the triangle into two part
+    VertexOut tmp;
+    VertexOut target[3] = {triangleOut.get_v0(), triangleOut.get_v1(), triangleOut.get_v2()};
+    if(target[0].pos_homo.y > target[1].pos_homo.y)
+    {
+        tmp = target[0];
+        target[0] = target[1];
+        target[1] = tmp;
+    }
+    if(target[0].pos_homo.y > target[2].pos_homo.y)
+    {
+        tmp = target[0];
+        target[0] = target[2];
+        target[2] = tmp;
+    }
+    if(target[1].pos_homo.y > target[2].pos_homo.y)
+    {
+        tmp = target[1];
+        target[1] = target[2];
+        target[2] = tmp;
+    }
+
+    // bottom triangle
+    if(equal(target[0].pos_homo.y,target[1].pos_homo.y))
+    {
+        rasterize_bottom_triangle(target[0], target[1], target[2]);
+    }
+        // top triangle
+    else if(equal(target[1].pos_homo.y,target[2].pos_homo.y))
+    {
+        rasterize_top_triangle(target[0], target[1], target[2]);
+    }
+        // split it.
+    else
+    {
+        double weight = static_cast<double>(target[1].pos_homo.y-target[0].pos_homo.y)/(target[2].pos_homo.y-target[0].pos_homo.y);
+        VertexOut newPoint = lerp(target[0],target[2],weight);
+        newPoint.pos_homo.y = target[1].pos_homo.y;
+        rasterize_top_triangle(target[0], newPoint, target[1]);
+        rasterize_bottom_triangle(newPoint, target[1], target[2]);
+    }
+
 }
 
 int Rasterizer::get_index(int x, int y) const {

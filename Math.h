@@ -10,6 +10,12 @@ const float EPSILON = 1e-5f;
 const float PI = 3.1415926f;
 const float DEG2RAD = PI / 180.0f;
 const float RAD2DEG = 180.0f / PI;
+const double tolerance = 1e-5f;
+
+inline bool equal(double a, double b)
+{
+    return fabs(a - b) < tolerance;
+}
 
 #define TO_RADIANS(degrees) ((PI/180) * degrees);
 #define TO_DEGREES(radians) ((180/PI) * radians);

@@ -30,7 +30,7 @@ int main(){
     rasterizer.set_view(camera.get_view_matrix());
     rasterizer.set_proj(camera.get_projection_matrix());
     rasterizer.set_viewport(width, height);
-    rasterizer.draw(posBufId, indBufId, RenderMode::Wire);
+    rasterizer.draw(posBufId, indBufId, RenderMode::Fill);
 
     TGAImage image(width, height, TGAImage::RGB);
     for (int h = 0; h < width; ++h) {

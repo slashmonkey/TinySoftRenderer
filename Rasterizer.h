@@ -52,8 +52,14 @@ public:
     void perspective_division(VertexOut& vertex);
 
 private:
+    // Bresenham's line drawing algorithm
     void draw_line(const VertexOut& begin, const VertexOut& end);
     void rasterize_wireframe(const TriangleOut& triangle);
+
+    void edge_walking_fill(const TriangleOut& triangleOut);
+    void scan_line_per_row(const VertexOut &left, const VertexOut &right);
+    void rasterize_top_triangle(VertexOut &v1, VertexOut &v2, VertexOut &v3);
+    void rasterize_bottom_triangle(VertexOut &v1, VertexOut &v2, VertexOut &v3);
 
 private:
     std::shared_ptr<FrameBuffer> framebuffer_ptr;
