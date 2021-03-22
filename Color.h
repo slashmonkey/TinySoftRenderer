@@ -29,6 +29,12 @@ public:
     float G() const { return g; }
     float B() const { return b; }
 
+    template<class T>
+    Color operator* (const T t) const { return Color(this->R() * t, this->G() * t, this->B() * t); }
+    Color operator+ (const Color& color) const {
+        return Color(this->R() + color.R(), this->G() + color.G(), this->B() + color.B());
+    }
+
     Color lerp(const Color& c, float weight) const{
         Color color;
         color.r = (*this).R() * (1 - weight) + c.R() * weight;

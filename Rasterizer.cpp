@@ -124,7 +124,55 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
         if (mode == RenderMode::Wire){
             rasterize_wireframe(triangleOut);
         }else{
-            edge_walking_fill(triangleOut);
+            barycentric_fill(triangleOut);
+            //edge_walking_fill(triangleOut);
+        }
+    }
+}
+
+static bool inside_triangle(float alpha, float beta, float gamma)
+{
+    int flag = 0;
+    // here epsilon is to alleviate precision bug
+    if (alpha > -EPSILON && beta > -EPSILON && gamma > -EPSILON)
+        flag = 1;
+
+    return flag;
+}
+
+static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const TriangleOut& triangle)
+{
+    VertexOut v[3] = {triangle.get_v0(), triangle.get_v1(), triangle.get_v2()};
+    float c1 = (x*(v[1].pos_homo.y - v[2].pos_homo.y) + (v[2].pos_homo.x - v[1].pos_homo.x)*y + v[1].pos_homo.x*v[2].pos_homo.y - v[2].pos_homo.x*v[1].pos_homo.y) /
+            (v[0].pos_homo.x*(v[1].pos_homo.y - v[2].pos_homo.y) + (v[2].pos_homo.x - v[1].pos_homo.x)*v[0].pos_homo.y + v[1].pos_homo.x*v[2].pos_homo.y - v[2].pos_homo.x*v[1].pos_homo.y);
+    float c2 = (x*(v[2].pos_homo.y - v[0].pos_homo.y) + (v[0].pos_homo.x - v[2].pos_homo.x)*y + v[2].pos_homo.x*v[0].pos_homo.y - v[0].pos_homo.x*v[2].pos_homo.y) /
+            (v[1].pos_homo.x*(v[2].pos_homo.y - v[0].pos_homo.y) + (v[0].pos_homo.x - v[2].pos_homo.x)*v[1].pos_homo.y + v[2].pos_homo.x*v[0].pos_homo.y - v[0].pos_homo.x*v[2].pos_homo.y);
+    float c3 = (x*(v[0].pos_homo.y - v[1].pos_homo.y) + (v[1].pos_homo.x - v[0].pos_homo.x)*y + v[0].pos_homo.x*v[1].pos_homo.y - v[1].pos_homo.x*v[0].pos_homo.y) /
+            (v[2].pos_homo.x*(v[0].pos_homo.y - v[1].pos_homo.y) + (v[1].pos_homo.x - v[0].pos_homo.x)*v[2].pos_homo.y + v[0].pos_homo.x*v[1].pos_homo.y - v[1].pos_homo.x*v[0].pos_homo.y);
+    return {c1,c2,c3};
+}
+
+void Rasterizer::barycentric_fill(const TriangleOut& triangleOut) {
+    VertexOut v0 = triangleOut.get_v0();
+    VertexOut v1 = triangleOut.get_v1();
+    VertexOut v2 = triangleOut.get_v2();
+
+    float x_min = std::floor(std::min(v0.pos_homo.x, std::min(v1.pos_homo.x, v2.pos_homo.x)));
+    float x_max = std::ceil(std::max(v0.pos_homo.x, std::max(v1.pos_homo.x, v2.pos_homo.x)));
+    float y_min = std::floor(std::min(v0.pos_homo.y, std::min(v1.pos_homo.y, v2.pos_homo.y)));
+    float y_max = std::ceil(std::max(v0.pos_homo.y, std::max(v1.pos_homo.y, v2.pos_homo.y)));
+
+    VertexOut current;
+    for (int y = y_min; y < y_max; ++y) {
+        for (int x = x_min; x <x_max; ++x) {
+            auto[alpha, beta, gamma] = computeBarycentric2D(x + 0.5f, y + 0.5f, triangleOut);
+            if (inside_triangle(alpha, beta, gamma)){
+                current = lerp_barycentric(triangleOut, alpha, beta, gamma );
+                current.pos_homo.x = x;
+                current.pos_homo.y = y;
+                Vec3f point(current.pos_homo.x, current.pos_homo.y, 1.f);
+                set_pixel(point, shader_ptr->fragment(current));
+            }
         }
     }
 }
@@ -207,7 +255,6 @@ void Rasterizer::rasterize_bottom_triangle(VertexOut &v1, VertexOut &v2, VertexO
 
 void Rasterizer::edge_walking_fill(const TriangleOut& triangleOut)
 {
-
     // split the triangle into two part
     VertexOut tmp;
     VertexOut target[3] = {triangleOut.get_v0(), triangleOut.get_v1(), triangleOut.get_v2()};
@@ -300,7 +347,7 @@ void Rasterizer::clear(Buffers buffer) {
     framebuffer_ptr->clear(buffer);
 }
 
-VertexOut Rasterizer::lerp(const VertexOut& v1, const VertexOut& v2, float weight) {
+ VertexOut Rasterizer::lerp(const VertexOut& v1, const VertexOut& v2, float weight) {
     VertexOut vertexOut;
     vertexOut.color = v1.color.lerp(v2.color, weight);
     vertexOut.normal = v1.normal.lerp(v2.normal, weight);
@@ -308,5 +355,17 @@ VertexOut Rasterizer::lerp(const VertexOut& v1, const VertexOut& v2, float weigh
     vertexOut.pos_world = v1.pos_world.lerp(v2.pos_world, weight);
     vertexOut.pos_homo = v1.pos_homo.lerp(v2.pos_homo, weight);
     vertexOut.rhw = v1.rhw * (1-weight) + v2.rhw * weight;
+    return vertexOut;
+}
+
+VertexOut Rasterizer::lerp_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma) {
+    VertexOut vertexOut;
+    vertexOut.color = triangle.get_v0().color * alpha + triangle.get_v1().color * beta + triangle.get_v2().color * gamma;
+    //TODO lerp other attributes
+    /*vertexOut.normal = v1.normal.lerp(v2.normal, weight);
+    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
+    vertexOut.pos_world = v1.pos_world.lerp(v2.pos_world, weight);
+    vertexOut.pos_homo = v1.pos_homo.lerp(v2.pos_homo, weight);
+    vertexOut.rhw = v1.rhw * (1-weight) + v2.rhw * weight;*/
     return vertexOut;
 }

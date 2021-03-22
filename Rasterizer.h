@@ -61,6 +61,10 @@ private:
     void rasterize_top_triangle(VertexOut &v1, VertexOut &v2, VertexOut &v3);
     void rasterize_bottom_triangle(VertexOut &v1, VertexOut &v2, VertexOut &v3);
 
+    //Barycentric
+    void barycentric_fill(const TriangleOut& triangleOut);
+    VertexOut lerp_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma);
+
 private:
     std::shared_ptr<FrameBuffer> framebuffer_ptr;
     std::shared_ptr<SimpleShader> shader_ptr;
