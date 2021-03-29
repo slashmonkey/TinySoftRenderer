@@ -95,18 +95,12 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
     std::vector<Vertex>& posBuf = vertex_buf[posBufId.id];
     std::vector<Vec3i>& indBuf = ind_buf[indBufId.id];
 
-    Mat4f mvp = projection * view * model;
-
-    std::cout << model << std::endl;
-    std::cout << view << std::endl;
-    std::cout << projection << std::endl;
-
     for(Vec3i ind : indBuf){
         //! vertex shader stage.
         VertexOut vertexOut[] = {
-                shader_ptr->vertex(posBuf[0]),
-                shader_ptr->vertex(posBuf[1]),
-                shader_ptr->vertex(posBuf[2]),
+            shader_ptr->vertex(posBuf[0]),
+            shader_ptr->vertex(posBuf[1]),
+            shader_ptr->vertex(posBuf[2]),
         };
 
         for(VertexOut& v : vertexOut){
@@ -300,7 +294,7 @@ void Rasterizer::edge_walking_fill(const TriangleOut& triangleOut)
 }
 
 int Rasterizer::get_index(int x, int y) const {
-    return y * width + x;
+    return (height-1-y)*width + x;
 }
 
 Color Rasterizer::get_color(int x, int y) const {
@@ -316,14 +310,17 @@ void Rasterizer::set_pixel(const Vec3f& point, const Color& color) {
 
 void Rasterizer::set_model(const Mat4f& _model) {
     model = _model;
+    shader_ptr->set_model_matrix(model);
 }
 
 void Rasterizer::set_view(const Mat4f& _view) {
     view = _view;
+    shader_ptr->set_view_matrix(view);
 }
 
 void Rasterizer::set_proj(const Mat4f& _proj) {
     projection = _proj;
+    shader_ptr->set_proj_matrix(projection);
 }
 
 void Rasterizer::set_viewport(const int& width, const int& height) {
@@ -336,11 +333,11 @@ void Rasterizer::set_viewport(const int& width, const int& height) {
 }
 
 void Rasterizer::perspective_division(VertexOut& vertex) {
-    float rhw = 1.0f / vertex.pos_homo.w;
+    float rhw = vertex.rhw;
     vertex.pos_homo.x *= rhw;
     vertex.pos_homo.y *= rhw;
     vertex.pos_homo.z *= rhw;
-    vertex.pos_homo.w *= 1.0f;
+    vertex.pos_homo.w = 1.0f;
 }
 
 void Rasterizer::clear(Buffers buffer) {

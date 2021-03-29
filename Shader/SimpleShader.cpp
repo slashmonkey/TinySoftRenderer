@@ -3,12 +3,12 @@
 
 VertexOut SimpleShader::vertex(const Vertex& in) {
     VertexOut out;
-    out.pos_world = in.pos;
-    out.pos_homo = in.pos;
+    out.pos_world = model * in.pos;
+    out.pos_homo = projection * view * model * in.pos;
     out.color = in.color;
     out.normal = in.normal;
-    out.rhw = 1.0;
     out.texcoord = in.texcoord;
+    out.rhw = 1.0f / out.pos_homo.w;
     return out;
 }
 
@@ -18,14 +18,14 @@ Color SimpleShader::fragment(const VertexOut& vertex_out) {
     return fragColor;
 }
 
-void SimpleShader::set_model_matrix(const Mat4f& model) {
-
+void SimpleShader::set_model_matrix(const Mat4f& _model) {
+    model = _model;
 }
 
-void SimpleShader::set_view_matrix(const Mat4f& view) {
-
+void SimpleShader::set_view_matrix(const Mat4f& _view) {
+    view = _view;
 }
 
-void SimpleShader::set_proj_matrix(const Mat4f& proj) {
-
+void SimpleShader::set_proj_matrix(const Mat4f& _proj) {
+    projection = _proj;
 }

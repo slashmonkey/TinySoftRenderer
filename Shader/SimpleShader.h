@@ -5,6 +5,11 @@
 #include "IShader.h"
 
 struct SimpleShader : IShader{
+
+    Mat4f model;
+    Mat4f view;
+    Mat4f projection;
+
     SimpleShader() = default;
     virtual ~SimpleShader() = default;
 

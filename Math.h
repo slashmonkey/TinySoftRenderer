@@ -101,7 +101,7 @@ template <typename T> struct Vector4{
     Vector4<T>() : x(T()), y(T()), z(T()), w(static_cast<T>(1)) {}
     Vector4<T>(T _x, T _y, T _z, T _w): x(_x), y(_y), z(_z), w(_w){}
     Vector4<T>(const Vector4<T>& v): x(v.x), y(v.y), z(v.z), w(v.w){}
-    Vector4<T>(const Vector3<T>& v): x(v.x), y(v.y), z(v.z), w(static_cast<T>(1)){}
+    Vector4<T>(const Vector3<T>& v, T _w = static_cast<T>(0)): x(v.x), y(v.y), z(v.z), w(_w){}
     ~Vector4() = default;
     Vector4<T>& operator =(const Vector4<T> &v){
         if(this != &v) { x = v.x; y = v.y; z = v.z; w = v.w;}
@@ -111,7 +111,7 @@ template <typename T> struct Vector4{
     T norm() const{return std::sqrt(x*x + y*y + z*z);}
     Vector4<T>& normalize() { T norm = this->norm(); assert(norm != 0); *this = *this * 1/norm; return *this; }
     Vector4<T> operator +(const Vector4& v) const { return Vector4<T>(x + v.x, y + v.y, z + v.z, w + v.w);}
-    Vector4<T> operator -(const Vector4& v) const { return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v,x);}
+    Vector4<T> operator -(const Vector4& v) const { return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v.w);}
     Vector4<T> operator *(const Vector4& v) const { return Vector4<T>(x * v.x, y * v.y, z * v.z, w * v.w);}
     Vector4<T> operator *(T f) const { return Vector4<T>(x*f, y*f, z*f, w*f);}
 
@@ -207,7 +207,7 @@ struct Matrix4x4 {
         for (int i = 0; i < rows; ++i){
             for (int j = 0; j < cols; ++j){
                 for (int k = 0; k < rows; ++k) {
-                    out.m[i][j] += m[i][k] * rhs[k][j];
+                    out.m[i][j] += this->m[i][k] * rhs[k][j];
                 }
             }
         }
