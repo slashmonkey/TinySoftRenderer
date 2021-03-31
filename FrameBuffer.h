@@ -29,6 +29,8 @@ public:
     Color get_color(int ind) const;
     void set_pixel(int ind, const Color& color);
 
+    Color* get_color_buffer() { return color_buf.data(); }
+
     int get_width() const { return width; }
     int get_height() const { return height; };
 

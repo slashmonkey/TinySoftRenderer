@@ -36,6 +36,7 @@ class Rasterizer {
 public:
     Rasterizer(int w, int h);
 
+    Color* output() const { return framebuffer_ptr->get_color_buffer();}
     Color get_color(int x, int y) const;
     Vertex_Buf_ID set_vertex_buffer(const std::vector<Vertex>& position);
     Ind_Buf_ID set_index_buffer(const std::vector<Vec3i>& indices);
