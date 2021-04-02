@@ -7,16 +7,17 @@
 
 class Window {
 public:
+    bool is_running = true;
+
     void init(int width, int height);
     void update(Color* color_buffer);
+    void set_title(const char* title);
     void stop();
 
     ~Window() {}
 private:
-    bool is_running = true;
     SDL_Event event;
     int width, height;
-
     //The window we'll be rendering to
     SDL_Window* window = NULL;
     //The surface contained by the window

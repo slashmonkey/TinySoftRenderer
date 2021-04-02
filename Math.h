@@ -280,8 +280,8 @@ struct Matrix4x4 {
 
     void set_rotationX(const T angle){
         *this = identity();
-        float c = std::cos(angle * DEG2RAD);
-        float s = std::sin(angle * DEG2RAD);
+        float c = std::cosf(angle * DEG2RAD);
+        float s = std::sinf(angle * DEG2RAD);
         m[1][1] = c;
         m[1][2] = -s;
         m[2][1] = s;
@@ -290,8 +290,8 @@ struct Matrix4x4 {
 
     void set_rotationY(const T angle){
         *this = identity();
-        float c = std::cos(angle * DEG2RAD);
-        float s = std::sin(angle * DEG2RAD);
+        float c = std::cosf(angle * DEG2RAD);
+        float s = std::sinf(angle * DEG2RAD);
         m[0][0] = c;
         m[0][2] = s;
         m[2][0] = -s;
@@ -300,8 +300,8 @@ struct Matrix4x4 {
 
     void set_rotationZ(const T angle){
         *this = identity();
-        float c = std::cos(angle * DEG2RAD);
-        float s = std::sin(angle * DEG2RAD);
+        float c = std::cosf(angle * DEG2RAD);
+        float s = std::sinf(angle * DEG2RAD);
         m[0][0] = c;
         m[0][1] = -s;
         m[1][0] = s;

@@ -34,34 +34,30 @@ void Window::init(int width, int height) {
 }
 
 void Window::update(Color* color_buffer) {
-    while (is_running) {
-        //Fill the surface white
-        SDL_LockSurface(screenSurface);
-        Uint32* destPixels = (Uint32*)screenSurface->pixels;
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
-                Color color = color_buffer[(height-1-y)*width + x];;
-                Uint32 sdl_color = SDL_MapRGB( screenSurface->format, color.R(), color.G(), color.B());
-                destPixels[x + y * width] = sdl_color;
-            }
+    SDL_LockSurface(screenSurface);
+    Uint32* destPixels = (Uint32*)screenSurface->pixels;
+    for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; ++y) {
+            Color color = color_buffer[(height-1-y)*width + x];;
+            Uint32 sdl_color = SDL_MapRGB( screenSurface->format, color.R(), color.G(), color.B());
+            destPixels[x + y * width] = sdl_color;
         }
-        SDL_UnlockSurface(screenSurface);
-        //Update the surface
-        SDL_UpdateWindowSurface( window );
+    }
+    SDL_UnlockSurface(screenSurface);
+    //Update the surface
+    SDL_UpdateWindowSurface( window );
 
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                is_running = SDL_FALSE;
-            }else if (event.type == SDL_KEYDOWN){
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE:
-                        is_running = SDL_FALSE;
-                        break;
-                    default:is_running = SDL_TRUE;
-                }
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            is_running = SDL_FALSE;
+        }else if (event.type == SDL_KEYDOWN){
+            switch (event.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    is_running = SDL_FALSE;
+                    break;
+                default:is_running = SDL_TRUE;
             }
         }
-        SDL_Delay(16);
     }
 }
 
@@ -70,4 +66,8 @@ void Window::stop() {
     window = nullptr;
     screenSurface = nullptr;
     SDL_Quit();
+}
+
+void Window::set_title(const char* title) {
+    SDL_SetWindowTitle(window, title);
 }
