@@ -4,7 +4,7 @@
 #include "iostream"
 
 Rasterizer::Rasterizer(int w, int h) : width(w), height(h) {
-    shader_ptr = std::make_shared<SimpleShader>();
+    shader_ptr = nullptr;
     framebuffer_ptr = std::make_shared<FrameBuffer>(width, height);
 }
 
@@ -308,19 +308,12 @@ void Rasterizer::set_pixel(const Vec3f& point, const Color& color) {
     framebuffer_ptr->set_pixel(ind, color);
 }
 
-void Rasterizer::set_model(const Mat4f& _model) {
-    model = _model;
-    shader_ptr->set_model_matrix(model);
-}
-
 void Rasterizer::set_view(const Mat4f& _view) {
     view = _view;
-    shader_ptr->set_view_matrix(view);
 }
 
-void Rasterizer::set_proj(const Mat4f& _proj) {
+void Rasterizer::set_projection(const Mat4f& _proj) {
     projection = _proj;
-    shader_ptr->set_proj_matrix(projection);
 }
 
 void Rasterizer::set_viewport(const int& width, const int& height) {
@@ -365,4 +358,17 @@ VertexOut Rasterizer::lerp_barycentric(const TriangleOut& triangle, float alpha,
     vertexOut.pos_homo = v1.pos_homo.lerp(v2.pos_homo, weight);
     vertexOut.rhw = v1.rhw * (1-weight) + v2.rhw * weight;*/
     return vertexOut;
+}
+
+void Rasterizer::add_mesh(Mesh* mesh) {
+    meshes.push_back(mesh);
+    mesh->vertex_buf_id = set_vertex_buffer(mesh->get_vertices()).id;
+    mesh->ind_buf_id = set_index_buffer(mesh->get_ind()).id;
+}
+
+void Rasterizer::set_shader(const std::shared_ptr<IShader>& iShader) {
+    shader_ptr = iShader;
+
+    shader_ptr->set_view_matrix(view);
+    shader_ptr->set_proj_matrix(projection);
 }

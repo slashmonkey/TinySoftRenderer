@@ -1,7 +1,6 @@
 #ifndef SOFTRENDERER_MATH_H
 #define SOFTRENDERER_MATH_H
 
-#include <cassert>
 #include <iostream>
 #include <cmath>
 #include <vector>

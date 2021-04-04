@@ -18,6 +18,10 @@ void Camera::set_projection(float fov, float ratio, float n, float f) {
     projection.set_row(Vec4f(          0,      1/tan,            0,            0), 1);
     projection.set_row(Vec4f(          0,          0, -(f+n)/(f-n), -2*f*n/(f-n)), 2);
     projection.set_row(Vec4f(          0,          0,           -1,            0), 3);
+
+    this->fov = fov;
+    this->near = n;
+    this->far = f;
 }
 
 void Camera::look_at(Vec3f& from, Vec3f& to, Vec3f& upDir) {

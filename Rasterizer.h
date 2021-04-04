@@ -5,6 +5,7 @@
 #include "Math.h"
 #include "Geometry.h"
 #include "FrameBuffer.h"
+#include "Mesh/Mesh.h"
 #include "Shader/SimpleShader.h"
 #include <map>
 #include <memory>
@@ -40,15 +41,18 @@ public:
     Color get_color(int x, int y) const;
     Vertex_Buf_ID set_vertex_buffer(const std::vector<Vertex>& position);
     Ind_Buf_ID set_index_buffer(const std::vector<Vec3i>& indices);
+    void set_shader(const std::shared_ptr<IShader>& iShader);
+    void add_mesh(Mesh* mesh);
+    const std::vector<Mesh*>& get_meshes() const { return meshes;}
 
+public:
     void set_pixel(const Vec3f& point, const Color& color);
     void clear(Buffers buffer);
     void draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mode);
     VertexOut lerp(const VertexOut& v1, const VertexOut& v2, float weight);
 
-    void set_model(const Mat4f& _model);
     void set_view(const Mat4f& _view);
-    void set_proj(const Mat4f& _proj);
+    void set_projection(const Mat4f& _proj);
     void set_viewport(const int& width, const int& height);
     void perspective_division(VertexOut& vertex);
 
@@ -68,9 +72,9 @@ private:
 
 private:
     std::shared_ptr<FrameBuffer> framebuffer_ptr;
-    std::shared_ptr<SimpleShader> shader_ptr;
+    std::shared_ptr<IShader> shader_ptr;
+    std::vector<Mesh*> meshes;
 
-    Mat4f model;
     Mat4f view;
     Mat4f projection;
     Mat4f viewport;

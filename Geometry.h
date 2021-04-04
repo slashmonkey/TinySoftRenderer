@@ -55,28 +55,7 @@ public:
                                      texcoord(rhs.texcoord), normal(rhs.normal),color(rhs.color),rhw(rhs.rhw) {}
 };
 
-class Triangle{
-public:
-    Triangle() {};
-    Triangle(Vertex v0, Vertex v1, Vertex v2) :v0(v0), v1(v1), v2(v2) {}
-    Triangle(const Triangle& t) { v0 = t.get_v0(); v1 = t.get_v1(); v2 = t.get_v2(); }
-    Triangle& operator=(const Triangle& t) { v0 = t.get_v0(); v1 = t.get_v1(); v2 = t.get_v2(); return *this; }
-    ~Triangle() {}
-
-    void set_v0(const Vertex& A) { v0 = A; };
-    Vertex get_v0() const { return v0; };
-
-    void set_v1(const Vertex& B) { v1 = B; };
-    Vertex get_v1() const { return v1; };
-
-    void set_v2(const Vertex& C) { v2 = C; };
-    Vertex get_v2() const { return v2; };
-private:
-    Vertex v0;
-    Vertex v1;
-    Vertex v2;
-};
-
+//Triangle outputted to screen
 class TriangleOut{
 public:
     TriangleOut() {};
