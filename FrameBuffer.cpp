@@ -11,7 +11,7 @@ FrameBuffer::~FrameBuffer() {}
 
 void FrameBuffer::clear(Buffers buffers) {
     if((buffers & Buffers::Color) == Buffers::Color){
-        std::fill(color_buf.begin(), color_buf.end(), BLACK);
+        std::fill(color_buf.begin(), color_buf.end(), Black);
     }
     if((buffers & Buffers::Depth) == Buffers::Depth){
         std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::infinity());

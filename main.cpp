@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Timer.h"
 #include "Mesh/Triangle.h"
+#include "Mesh/Box.h"
 
 int main(){
     int width = 800;
@@ -20,8 +21,8 @@ int main(){
     rasterizer.set_viewport(width, height);
 
     std::shared_ptr<IShader> simpleShader = std::make_shared<SimpleShader>();
-    Mesh* triangle = new Triangle(simpleShader);
-    rasterizer.add_mesh(triangle);
+    Mesh* box = new Box(simpleShader);
+    rasterizer.add_mesh(box);
 
     Window window;
     window.init(width, height);

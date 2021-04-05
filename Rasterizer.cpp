@@ -98,9 +98,9 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
     for(Vec3i ind : indBuf){
         //! vertex shader stage.
         VertexOut vertexOut[] = {
-            shader_ptr->vertex(posBuf[0]),
-            shader_ptr->vertex(posBuf[1]),
-            shader_ptr->vertex(posBuf[2]),
+            shader_ptr->vertex(posBuf[ind[0]]),
+            shader_ptr->vertex(posBuf[ind[1]]),
+            shader_ptr->vertex(posBuf[ind[2]]),
         };
 
         for(VertexOut& v : vertexOut){
