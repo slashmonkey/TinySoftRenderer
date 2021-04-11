@@ -68,7 +68,7 @@ private:
 
     //Barycentric
     void barycentric_fill(const TriangleOut& triangleOut);
-    VertexOut lerp_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma);
+    VertexOut interpolated_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma);
 
 private:
     std::shared_ptr<FrameBuffer> framebuffer_ptr;

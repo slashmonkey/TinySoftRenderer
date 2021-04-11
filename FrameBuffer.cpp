@@ -25,3 +25,11 @@ void FrameBuffer::set_pixel(int ind, const Color& color) {
 Color FrameBuffer::get_color(int ind) const {
     return color_buf[ind];
 }
+
+void FrameBuffer::set_depth(int ind, float depth) {
+    depth_buf[ind] = depth;
+}
+
+float FrameBuffer::get_depth(int ind) {
+    return depth_buf[ind];
+}

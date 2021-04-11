@@ -119,7 +119,7 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
             rasterize_wireframe(triangleOut);
         }else{
             barycentric_fill(triangleOut);
-            //edge_walking_fill(triangleOut);
+//            edge_walking_fill(triangleOut);
         }
     }
 }
@@ -158,14 +158,16 @@ void Rasterizer::barycentric_fill(const TriangleOut& triangleOut) {
 
     VertexOut current;
     for (int y = y_min; y < y_max; ++y) {
-        for (int x = x_min; x <x_max; ++x) {
+        for (int x = x_min; x < x_max; ++x) {
             auto[alpha, beta, gamma] = computeBarycentric2D(x + 0.5f, y + 0.5f, triangleOut);
             if (inside_triangle(alpha, beta, gamma)){
-                current = lerp_barycentric(triangleOut, alpha, beta, gamma );
-                current.pos_homo.x = x;
-                current.pos_homo.y = y;
-                Vec3f point(current.pos_homo.x, current.pos_homo.y, 1.f);
-                set_pixel(point, shader_ptr->fragment(current));
+                current = interpolated_barycentric(triangleOut, alpha, beta, gamma);
+                int ind = get_index(x, y);
+                if(current.pos_homo.z < framebuffer_ptr->get_depth(ind)){
+                    framebuffer_ptr->set_depth(ind, current.pos_homo.z);
+                    Vec3f point(current.pos_homo.x, current.pos_homo.y, current.pos_homo.z);
+                    set_pixel(point, shader_ptr->fragment(current));
+                }
             }
         }
     }
@@ -348,15 +350,14 @@ void Rasterizer::clear(Buffers buffer) {
     return vertexOut;
 }
 
-VertexOut Rasterizer::lerp_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma) {
+VertexOut Rasterizer::interpolated_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma) {
     VertexOut vertexOut;
     vertexOut.color = triangle.get_v0().color * alpha + triangle.get_v1().color * beta + triangle.get_v2().color * gamma;
-    //TODO lerp other attributes
-    /*vertexOut.normal = v1.normal.lerp(v2.normal, weight);
-    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
-    vertexOut.pos_world = v1.pos_world.lerp(v2.pos_world, weight);
-    vertexOut.pos_homo = v1.pos_homo.lerp(v2.pos_homo, weight);
-    vertexOut.rhw = v1.rhw * (1-weight) + v2.rhw * weight;*/
+//    vertexOut.normal = v1.normal.lerp(v2.normal, weight);
+//    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
+    vertexOut.pos_world = triangle.get_v0().pos_world * alpha + triangle.get_v1().pos_world * beta + triangle.get_v2().pos_world * gamma;
+    vertexOut.pos_homo = triangle.get_v0().pos_homo * alpha + triangle.get_v1().pos_homo * beta + triangle.get_v2().pos_homo * gamma;
+    vertexOut.rhw = triangle.get_v0().rhw * alpha + triangle.get_v1().rhw * beta + triangle.get_v2().rhw * gamma;
     return vertexOut;
 }
 

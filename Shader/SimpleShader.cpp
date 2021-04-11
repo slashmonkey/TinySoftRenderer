@@ -8,7 +8,7 @@ VertexOut SimpleShader::vertex(const Vertex& in) {
     out.color = in.color;
     out.normal = in.normal;
     out.texcoord = in.texcoord;
-    out.rhw = 1.0f / out.pos_homo.w;
+    out.rhw = 1.0f / out.pos_homo.w;//w ==-viewspace.z
     return out;
 }
 
