@@ -161,11 +161,13 @@ void Rasterizer::barycentric_fill(const TriangleOut& triangleOut) {
         for (int x = x_min; x < x_max; ++x) {
             auto[alpha, beta, gamma] = computeBarycentric2D(x + 0.5f, y + 0.5f, triangleOut);
             if (inside_triangle(alpha, beta, gamma)){
-                current = interpolated_barycentric(triangleOut, alpha, beta, gamma);
                 int ind = get_index(x, y);
-                if(current.pos_homo.z < framebuffer_ptr->get_depth(ind)){
-                    framebuffer_ptr->set_depth(ind, current.pos_homo.z);
-                    Vec3f point(current.pos_homo.x, current.pos_homo.y, current.pos_homo.z);
+                //z is interpolated view space depth for the current pixel
+                float z = 1 / (alpha * triangleOut.get_v0().rhw + beta * triangleOut.get_v1().rhw + gamma * triangleOut.get_v2().rhw);
+                if(z < framebuffer_ptr->get_depth(ind)){
+                    current = interpolated_barycentric(triangleOut, alpha, beta, gamma);
+                    framebuffer_ptr->set_depth(ind, z);
+                    Vec3f point(x, y, z);
                     set_pixel(point, shader_ptr->fragment(current));
                 }
             }
@@ -351,13 +353,22 @@ void Rasterizer::clear(Buffers buffer) {
 }
 
 VertexOut Rasterizer::interpolated_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma) {
+    //perspective correction
+    float v0_rhw = triangle.get_v0().rhw;
+    float v1_rhw = triangle.get_v1().rhw;
+    float v2_rhw = triangle.get_v2().rhw;
+    float z = 1 / (v0_rhw * alpha + v1_rhw * beta + v2_rhw * gamma);
+
     VertexOut vertexOut;
-    vertexOut.color = triangle.get_v0().color * alpha + triangle.get_v1().color * beta + triangle.get_v2().color * gamma;
+    vertexOut.color = ( triangle.get_v0().color * v0_rhw  * alpha +
+                        triangle.get_v1().color * v1_rhw * beta +
+                        triangle.get_v2().color * v2_rhw * gamma ) * z;
 //    vertexOut.normal = v1.normal.lerp(v2.normal, weight);
 //    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
-    vertexOut.pos_world = triangle.get_v0().pos_world * alpha + triangle.get_v1().pos_world * beta + triangle.get_v2().pos_world * gamma;
-    vertexOut.pos_homo = triangle.get_v0().pos_homo * alpha + triangle.get_v1().pos_homo * beta + triangle.get_v2().pos_homo * gamma;
-    vertexOut.rhw = triangle.get_v0().rhw * alpha + triangle.get_v1().rhw * beta + triangle.get_v2().rhw * gamma;
+//    vertexOut.pos_world = triangle.get_v0().pos_world * alpha + triangle.get_v1().pos_world * beta + triangle.get_v2().pos_world * gamma;
+//    vertexOut.pos_homo =( triangle.get_v0().pos_homo * v0_rhw * alpha +
+//                          triangle.get_v1().pos_homo * v1_rhw * beta +
+//                          triangle.get_v2().pos_homo * v2_rhw * gamma ) * z;
     return vertexOut;
 }
 
