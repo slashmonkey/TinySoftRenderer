@@ -1,5 +1,7 @@
 
 #include "Box.h"
+#include "../Light.h"
+#include "../Shader/PhongShader.h"
 
 void Box::update_transform(float deltaTime) {
     angle += 45 * deltaTime;
@@ -25,37 +27,38 @@ Box::Box(float width, float height, float depth, std::shared_ptr<IShader>& iShad
             //down
             Vec3i(20, 21, 22), Vec3i(20, 22, 23)
     };
+
     vertices = {
          //front
-         Vertex(Vec4f(half_w, half_h, half_d, 1), Red),
-         Vertex(Vec4f(-half_w, half_h, half_d, 1), Green),
-         Vertex(Vec4f(-half_w,-half_h, half_d, 1), Blue),
-         Vertex(Vec4f(half_w, -half_h, half_d, 1), White),
+         Vertex(Vec4f(half_w, half_h, half_d, 1), Red, Vec3f(0.f, 0.f , 1.0f)),
+         Vertex(Vec4f(-half_w, half_h, half_d, 1), Green, Vec3f(0.f, 0.f , 1.0f)),
+         Vertex(Vec4f(-half_w,-half_h, half_d, 1), Blue, Vec3f(0.f, 0.f , 1.0f)),
+         Vertex(Vec4f(half_w, -half_h, half_d, 1), White, Vec3f(0.f, 0.f , 1.0f)),
          //left
-         Vertex(Vec4f(-half_w, +half_h, half_d, 1), Red),
-         Vertex(Vec4f(-half_w, +half_h, -half_d, 1), Green),
-         Vertex(Vec4f(-half_w, -half_h, -half_d, 1), Blue),
-         Vertex(Vec4f(-half_w, -half_h, half_d, 1), White),
+         Vertex(Vec4f(-half_w, +half_h, half_d, 1), Red, Vec3f(-1.f, 0.f, 0.f)),
+         Vertex(Vec4f(-half_w, +half_h, -half_d, 1), Green, Vec3f(-1.f, 0.f, 0.f)),
+         Vertex(Vec4f(-half_w, -half_h, -half_d, 1), Blue, Vec3f(-1.f, 0.f, 0.f)),
+         Vertex(Vec4f(-half_w, -half_h, half_d, 1), White, Vec3f(-1.f, 0.f, 0.f)),
          //back
-         Vertex(Vec4f(-half_w, +half_h, -half_d, 1), Red),
-         Vertex(Vec4f(+half_w, +half_h, -half_d, 1), Green),
-         Vertex(Vec4f(+half_w, -half_h, -half_d, 1), Blue),
-         Vertex(Vec4f(-half_w, -half_h, -half_d, 1), White),
+         Vertex(Vec4f(-half_w, +half_h, -half_d, 1), Red, Vec3f(0.f, 0.f , -1.0f)),
+         Vertex(Vec4f(+half_w, +half_h, -half_d, 1), Green, Vec3f(0.f, 0.f , -1.0f)),
+         Vertex(Vec4f(+half_w, -half_h, -half_d, 1), Blue, Vec3f(0.f, 0.f , -1.0f)),
+         Vertex(Vec4f(-half_w, -half_h, -half_d, 1), White, Vec3f(0.f, 0.f , -1.0f)),
          //right
-         Vertex(Vec4f(half_w, +half_h, -half_d, 1), Red),
-         Vertex(Vec4f(half_w, +half_h, +half_d, 1), Green),
-         Vertex(Vec4f(half_w, -half_h, +half_d, 1), Blue),
-         Vertex(Vec4f(half_w, -half_h, -half_d, 1), White),
+         Vertex(Vec4f(half_w, +half_h, -half_d, 1), Red, Vec3f(1.f, 0.f, 0.f)),
+         Vertex(Vec4f(half_w, +half_h, +half_d, 1), Green, Vec3f(1.f, 0.f, 0.f)),
+         Vertex(Vec4f(half_w, -half_h, +half_d, 1), Blue, Vec3f(1.f, 0.f, 0.f)),
+         Vertex(Vec4f(half_w, -half_h, -half_d, 1), White, Vec3f(1.f, 0.f, 0.f)),
          //top
-         Vertex(Vec4f(+half_w, half_h, -half_d, 1), Red),
-         Vertex(Vec4f(-half_w, half_h, -half_d, 1), Green),
-         Vertex(Vec4f(-half_w, half_h, half_d, 1), Blue),
-         Vertex(Vec4f(+half_w, half_h, half_d, 1), White),
+         Vertex(Vec4f(+half_w, half_h, -half_d, 1), Red, Vec3f(0.f, 1.f, 0.f)),
+         Vertex(Vec4f(-half_w, half_h, -half_d, 1), Green, Vec3f(0.f, 1.f, 0.f)),
+         Vertex(Vec4f(-half_w, half_h, half_d, 1), Blue, Vec3f(0.f, 1.f, 0.f)),
+         Vertex(Vec4f(+half_w, half_h, half_d, 1), White, Vec3f(0.f, 1.f, 0.f)),
          //down
-         Vertex(Vec4f(+half_w, -half_h, -half_d, 1), Red),
-         Vertex(Vec4f(+half_w, -half_h, +half_d, 1), Green),
-         Vertex(Vec4f(-half_w, -half_h, +half_d, 1), Blue),
-         Vertex(Vec4f(-half_w, -half_h, -half_d, 1), White)
+         Vertex(Vec4f(+half_w, -half_h, -half_d, 1), Red, Vec3f(0.f, -1.f, 0.f)),
+         Vertex(Vec4f(+half_w, -half_h, +half_d, 1), Green, Vec3f(0.f, -1.f, 0.f)),
+         Vertex(Vec4f(-half_w, -half_h, +half_d, 1), Blue, Vec3f(0.f, -1.f, 0.f)),
+         Vertex(Vec4f(-half_w, -half_h, -half_d, 1), White, Vec3f(0.f, -1.f, 0.f))
     };
 }
 

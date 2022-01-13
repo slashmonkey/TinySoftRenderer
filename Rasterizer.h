@@ -7,6 +7,7 @@
 #include "FrameBuffer.h"
 #include "Mesh/Mesh.h"
 #include "Shader/SimpleShader.h"
+#include "Light.h"
 #include <map>
 #include <memory>
 

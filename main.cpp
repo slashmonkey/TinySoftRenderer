@@ -6,13 +6,16 @@
 #include "Timer.h"
 #include "Mesh/Triangle.h"
 #include "Mesh/Box.h"
+#include "Shader/PhongShader.h"
 
 int main(){
     int width = 800;
     int height = 600;
     double delta_time;
 
-    Camera camera(Vec3f(0.0f, 0.0f, 3.0f),Vec3f(0, 0, -5.f),Vec3f (0, 1, 0));
+    Vec3f eye(0.0f, 1.0f, 6.0f);
+    Vec3f light_pos(-1.f, 0.f, 5.f);
+    Camera camera(eye, Vec3f(0, 0, -5.f),Vec3f (0, 1, 0));
     camera.set_projection(45, (float)width/height, 0.1, 50);
 
     Rasterizer rasterizer(width, height);
@@ -20,9 +23,19 @@ int main(){
     rasterizer.set_projection(camera.get_projection_matrix());
     rasterizer.set_viewport(width, height);
 
-    std::shared_ptr<IShader> simpleShader = std::make_shared<SimpleShader>();
-    Mesh* box = new Box(simpleShader);
+    std::shared_ptr<IShader> shader = std::make_shared<PhongShader>();
+    Mesh* box = new Box(shader);
     rasterizer.add_mesh(box);
+
+    PhongShader* phongShader = dynamic_cast<PhongShader*>(shader.get());
+    Ambient ambient(Color(255,255,255), 0.2f);
+    Material material(0.5f, 0.4f, 500);
+
+    Light* light = new DirectionalLight(light_pos, Green, 10.f);
+    phongShader->set_material(&material);
+    phongShader->set_ambient(&ambient);
+    phongShader->set_light(light);
+    phongShader->set_eye_pos(&eye);
 
     Window window;
     window.init(width, height);
@@ -45,5 +58,7 @@ int main(){
     }
     window.stop();
 
+    delete box;
+    delete light;
     return 0;
 }

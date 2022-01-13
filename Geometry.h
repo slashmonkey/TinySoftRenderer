@@ -19,7 +19,7 @@ public:
     void set_pos(Vec4f _pos) { pos = _pos; }
     void set_Normal(Vec3f n) { normal = n; }
     void set_TexCoord(float s, float t) { texcoord = Vec2f(s, t); }
-    void set_Color(float r, float g, float b) { color = Color(r / 255.f, g / 255.f, b / 255.f); }
+    void set_Color(float r, float g, float b) { color = Color(r, g, b); }
 
     float x() const { return pos.x; }
     float y() const { return pos.y; }

@@ -119,7 +119,7 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
             rasterize_wireframe(triangleOut);
         }else{
             barycentric_fill(triangleOut);
-//            edge_walking_fill(triangleOut);
+            //edge_walking_fill(triangleOut);
         }
     }
 }
@@ -363,9 +363,13 @@ VertexOut Rasterizer::interpolated_barycentric(const TriangleOut& triangle, floa
     vertexOut.color = ( triangle.get_v0().color * v0_rhw  * alpha +
                         triangle.get_v1().color * v1_rhw * beta +
                         triangle.get_v2().color * v2_rhw * gamma ) * z;
-//    vertexOut.normal = v1.normal.lerp(v2.normal, weight);
+    vertexOut.normal = ( triangle.get_v0().normal * v0_rhw  * alpha +
+                         triangle.get_v1().normal * v1_rhw * beta +
+                         triangle.get_v2().normal * v2_rhw * gamma ) * z;
 //    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
-//    vertexOut.pos_world = triangle.get_v0().pos_world * alpha + triangle.get_v1().pos_world * beta + triangle.get_v2().pos_world * gamma;
+    vertexOut.pos_world = (triangle.get_v0().pos_world * v0_rhw * alpha +
+                          triangle.get_v1().pos_world * v1_rhw * beta +
+                          triangle.get_v2().pos_world * v2_rhw * gamma) * z;
 //    vertexOut.pos_homo =( triangle.get_v0().pos_homo * v0_rhw * alpha +
 //                          triangle.get_v1().pos_homo * v1_rhw * beta +
 //                          triangle.get_v2().pos_homo * v2_rhw * gamma ) * z;

@@ -54,11 +54,15 @@ template <typename T> std::ostream& operator<<(std::ostream& s, Vector2<T>& v) {
     return s;
 }
 
+template<typename T>
+class Vector4;
+
 template <typename T> struct Vector3{
     T x, y, z;
     Vector3<T>() : x(T()), y(T()), z(T()) {}
     Vector3<T>(T _x, T _y, T _z): x(_x), y(_y), z(_z){}
     Vector3<T>(const Vector3<T>& v): x(v.x), y(v.y), z(v.z){}
+    Vector3<T>(const Vector4<T>& v): x(v.x), y(v.y), z(v.z){}
     ~Vector3() = default;
     Vector3<T>& operator =(const Vector3<T> &v){
         if(this != &v) { x = v.x; y = v.y; z = v.z;}
@@ -87,10 +91,10 @@ template <typename T> struct Vector3{
 
     Vector3<T> lerp(const Vector3<T>& v2, float weight) const {return (*this) * (1 - weight) + v2 * weight;}
 
-    template<typename> friend std::ostream& operator<<(std::ostream& s, Vector3<T>& v);
+    template<typename> friend std::ostream& operator<<(std::ostream& s, const Vector3<T>& v);
 };
 
-template <typename T> std::ostream& operator<<(std::ostream& s, Vector3<T>& v) {
+template <typename T> std::ostream& operator<<(std::ostream& s, const Vector3<T>& v) {
     s << "(" << v.x << ", " << v.y << ", " << v.z << ")\n";
     return s;
 }
@@ -307,7 +311,7 @@ struct Matrix4x4 {
         m[1][1] = c;
     }
 
-    Matrix4x4 inverse(){
+    Matrix4x4<float> inverseTranspose() const{
         float SubFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
         float SubFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
         float SubFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
@@ -356,10 +360,10 @@ struct Matrix4x4 {
                 + m[0][3] * adj.m[0][3];
         if(Determinant == 0) return identity();
 
-        return adj / Determinant;
+        return adj * (1 / Determinant);
     }
 
-    Matrix4x4<T> transpose(){
+    Matrix4x4<T> transpose() const{
         Matrix4x4<T> out;
         for(int i=0; i<rows; i++)
             for(int j=0; j<cols; j++)
