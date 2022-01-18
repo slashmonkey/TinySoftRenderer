@@ -1,6 +1,7 @@
 
 #include "Window.h"
 #include "Color.h"
+#include <iostream>
 
 void Window::init_sdl() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -51,12 +52,10 @@ void Window::update(Color* color_buffer) {
         if (event.type == SDL_QUIT) {
             is_running = SDL_FALSE;
         }else if (event.type == SDL_KEYDOWN){
-            switch (event.key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    is_running = SDL_FALSE;
-                    break;
-                default:is_running = SDL_TRUE;
-            }
+            onKeyPressed(event.key.keysym.sym);
+        }else if (event.type == SDL_KEYUP){
+            is_key_down = false;
+            active_key = SDLK_UNKNOWN;
         }
     }
 }
@@ -70,4 +69,24 @@ void Window::stop() {
 
 void Window::set_title(const char* title) {
     SDL_SetWindowTitle(window, title);
+}
+
+void Window::onKeyPressed(SDL_Keycode keyCode) {
+    switch (keyCode) {
+        case SDLK_ESCAPE:
+            is_running = SDL_FALSE;
+            break;
+        case SDLK_w:
+        case SDLK_s:
+        case SDLK_a:
+        case SDLK_d:
+            set_active_key(keyCode, true);
+            break;
+        default:is_running = SDL_TRUE;
+    }
+}
+
+void Window::set_active_key(SDL_Keycode keycode, bool is_down) {
+    is_key_down = is_down;
+    active_key = keycode;
 }

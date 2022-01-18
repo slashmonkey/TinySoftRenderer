@@ -2,6 +2,7 @@
 #ifndef SOFTRENDERER_CAMERA_H
 #define SOFTRENDERER_CAMERA_H
 
+#include <SDL_keycode.h>
 #include "Math.h"
 
 //OpenGL handed system
@@ -21,14 +22,22 @@ public:
     Mat4f get_view_matrix() const{ return view; }
     Mat4f get_projection_matrix() const{ return projection; }
 
+    void process_key_input(SDL_Keycode keyCode, float deltaTime);
+
 private:
     Mat4f view;
     Mat4f projection;
 
-private:
-    Vec3f position;
-    Vec3f target;
+    Vec3f position; //eye position
+    Vec3f target;   //look at target
+
     Vec3f up;
+    Vec3f forward;
+    Vec3f left;
+
+    //movement
+    float speed = 5.f;
+    void translate(const Vec3f& trans);
 
     float near = 1.0f;
     float far = 500.0f;

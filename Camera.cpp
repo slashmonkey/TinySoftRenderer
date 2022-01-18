@@ -1,6 +1,7 @@
 
 #include "Camera.h"
 #include <cmath>
+#include <iostream>
 
 void Camera::set_projection(float l, float r, float b, float t, float n, float f) {
     projection.set_row(Vec4f(2*n/(r-l),         0,  (r+l)/(r-l),            0), 0);
@@ -29,8 +30,8 @@ void Camera::look_at(Vec3f& from, Vec3f& to, Vec3f& upDir) {
     target = to;
 
     //from - to, eye - target
-    Vec3f forward = (position - target).normalize();
-    Vec3f left = upDir.cross(forward).normalize();
+    forward = (position - target).normalize();
+    left = upDir.cross(forward).normalize();
     up = forward.cross(left).normalize();
 
     //Mview = Mr * Mt
@@ -53,5 +54,30 @@ void Camera::set_ortho(float l, float r, float b, float t, float n, float f) {
     projection.set_row(Vec4f(      0, 2/(t-b),        0, -1*(t+b)/(t-b)), 1);
     projection.set_row(Vec4f(      0,       0, -2/(f-n), -1*(f+n)/(f-n)), 2);
     projection.set_row(Vec4f(      0,       0,        0,              1), 3);
+}
+
+void Camera::process_key_input(SDL_Keycode keyCode, float deltaTime) {
+    switch (keyCode) {
+        case SDLK_w:
+            translate(forward * -speed * deltaTime);
+            break;
+        case SDLK_s:
+            translate(forward * speed * deltaTime);
+            break;
+        case SDLK_a:
+            translate(left * -speed * deltaTime);
+            break;
+        case SDLK_d:
+            translate(left * speed * deltaTime);
+            break;
+        default:
+            break;
+    }
+}
+
+void Camera::translate(const Vec3f& trans) {
+    position = position + trans;
+    target = target + trans;
+    look_at(position, target, up);
 }
 

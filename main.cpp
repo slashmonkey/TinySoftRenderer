@@ -7,13 +7,14 @@
 #include "Mesh/Triangle.h"
 #include "Mesh/Box.h"
 #include "Shader/PhongShader.h"
+#include "Shader/GouraudShader.h"
 
 int main(){
     int width = 800;
     int height = 600;
     double delta_time;
 
-    Vec3f eye(0.0f, 1.0f, 6.0f);
+    Vec3f eye(0.0f, 0.0f, 6.0f);
     Vec3f light_pos(-1.f, 0.f, 5.f);
     Camera camera(eye, Vec3f(0, 0, -5.f),Vec3f (0, 1, 0));
     camera.set_projection(45, (float)width/height, 0.1, 50);
@@ -44,6 +45,12 @@ int main(){
     while (window.is_running){
         timer.start();
         rasterizer.clear(Buffers::Color | Buffers::Depth);
+
+        if (window.any_key_down()){
+            camera.process_key_input(window.get_active_key(), delta_time);
+        }
+
+        rasterizer.set_view(camera.get_view_matrix());
 
         const std::vector<Mesh*>& meshes = rasterizer.get_meshes();
         for (auto mesh : meshes) {
