@@ -13,13 +13,13 @@ public:
     void set_material(const Material* _material){ material = _material; }
     void set_ambient(const Ambient* _ambient){ ambient = _ambient;}
     void set_light(const Light* _light) { light = _light; }
-    void set_eye_pos(const Vec3f* _eye_pos) { eye_pos = _eye_pos; }
+    void set_eye_pos(Vec3f _eye_pos) { eye_pos = _eye_pos; }
 
 private:
     const Material* material;
     const Ambient* ambient;
     const Light* light;
-    const Vec3f* eye_pos;
+    Vec3f eye_pos;
 
     Mat4f invModelMatrix;
 

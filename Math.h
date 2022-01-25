@@ -16,8 +16,8 @@ inline bool equal(double a, double b)
     return fabs(a - b) < tolerance;
 }
 
-#define TO_RADIANS(degrees) ((PI/180) * degrees);
-#define TO_DEGREES(radians) ((180/PI) * radians);
+#define TO_RADIANS(degrees) ((PI/180) * degrees)
+#define TO_DEGREES(radians) ((180/PI) * radians)
 
 template <typename T> struct Vector2{
     T x, y;
@@ -277,8 +277,30 @@ struct Matrix4x4 {
         m[2][2] = scaleFactor.z;
     }
 
-    void rotationAxis(const T angle, const Vector3<T>& axis){
-        *this = identity();
+    Matrix4x4 rotationAxis(const T angle, const Vector3<T>& axis){
+        Vector3 n = axis;
+        n.normalize();
+        float c = (float)cos(angle);
+        float s = (float)sin(angle);
+        Matrix4x4 matrix;
+        matrix.m[0][0] = n.x * n.x * (1 - c) + c;
+        matrix.m[0][1] = n.y * n.x * (1 - c) - s * n.z;
+        matrix.m[0][2] = n.z * n.x * (1 - c) + s * n.y;
+
+        matrix.m[1][0] = n.x * n.y * (1 - c) + s * n.z;
+        matrix.m[1][1] = n.y * n.y * (1 - c) + c;
+        matrix.m[1][2] = n.z * n.y * (1 - c) - s * n.x;
+
+        matrix.m[2][0] = n.x * n.z * (1 - c) - s * n.y;
+        matrix.m[2][1] = n.y * n.z * (1 - c) + s * n.x;
+        matrix.m[2][2] = n.z * n.z * (1 - c) + c;
+
+        matrix.m[3][0] = matrix.m[1][3] = matrix.m[2][3] = 0.0f;
+        matrix.m[0][3] = matrix.m[3][1] = matrix.m[3][2] = 0.0f;
+        matrix.m[3][3] = 1.0f;
+
+        *this = *this * matrix;
+        return *this;
     }
 
     void set_rotationX(const T angle){

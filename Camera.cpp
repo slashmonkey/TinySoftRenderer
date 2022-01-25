@@ -25,6 +25,12 @@ void Camera::set_projection(float fov, float ratio, float n, float f) {
     this->far = f;
 }
 
+void Camera::set_projection(float fov, float width, float height, float n, float f) {
+    this->width = width;
+    this->height = height;
+    set_projection(fov, width/height, n, f);
+}
+
 void Camera::look_at(Vec3f& from, Vec3f& to, Vec3f& upDir) {
     position = from;
     target = to;
@@ -77,7 +83,41 @@ void Camera::process_key_input(SDL_Keycode keyCode, float deltaTime) {
 
 void Camera::translate(const Vec3f& trans) {
     position = position + trans;
-    target = target + trans;
+//    target = target + trans;
     look_at(position, target, up);
+}
+
+void Camera::process_mouse_input(int x, int y, bool leftMouseDown, bool rightMouseDown, float delta_time) {
+    if (first_init){
+        last_mouse_x = x;
+        last_mouse_y = y;
+        first_init = false;
+    }
+
+    float x_delta = (x - last_mouse_x) / width;
+    float y_delta = (y - last_mouse_y) / height;
+    last_mouse_x = x;
+    last_mouse_y = y;
+
+    if (leftMouseDown){
+        Vec3f from_target = position - target;			// vector point from target to camera's position
+        float radius = from_target.norm();
+
+        float phi     = (float)atan2(from_target[0], from_target[2]); // angle between from_target and z-axis[-pi, pi]
+        float theta   = (float)acos(from_target[1] / radius); //angle between from_target and y-axis, [0, pi]
+
+        float factor = 1.5f;
+        phi   -= x_delta * factor;
+        theta -= y_delta * factor;
+
+        if (theta > PI) theta = PI - EPSILON * 100;
+        if (theta < 0)  theta = EPSILON * 100;
+
+        position.x = target.x + radius * sin(phi) * sin(theta);
+        position.y = target.y + radius * cos(theta);
+        position.z = target.z + radius * sin(theta) * cos(phi);
+
+        look_at(position, target, up);
+    }
 }
 

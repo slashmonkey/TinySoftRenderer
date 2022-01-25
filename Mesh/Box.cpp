@@ -4,8 +4,8 @@
 #include "../Shader/PhongShader.h"
 
 void Box::update_transform(float deltaTime) {
-    angle += 45 * deltaTime;
-    model.set_rotationY(angle);
+    /*angle += 45 * deltaTime;
+    model.set_rotationY(angle);*/
     shader->set_model_matrix(model);
 }
 

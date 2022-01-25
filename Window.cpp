@@ -52,10 +52,20 @@ void Window::update(Color* color_buffer) {
         if (event.type == SDL_QUIT) {
             is_running = SDL_FALSE;
         }else if (event.type == SDL_KEYDOWN){
-            onKeyPressed(event.key.keysym.sym);
+            on_key_pressed(event.key.keysym.sym);
         }else if (event.type == SDL_KEYUP){
             is_key_down = false;
             active_key = SDLK_UNKNOWN;
+        }else if(event.type == SDL_MOUSEMOTION){
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            on_mouse_move(x, y);
+        }else if (event.type == SDL_MOUSEBUTTONDOWN){
+            if(SDL_BUTTON(SDL_BUTTON_LEFT)) left_mouse_down = true;
+            if(SDL_BUTTON(SDL_BUTTON_RIGHT)) right_mouse_down = true;
+        }else if(event.type == SDL_MOUSEBUTTONUP){
+            if(SDL_BUTTON(SDL_BUTTON_LEFT)) left_mouse_down = false;
+            if(SDL_BUTTON(SDL_BUTTON_RIGHT)) right_mouse_down = false;
         }
     }
 }
@@ -71,7 +81,7 @@ void Window::set_title(const char* title) {
     SDL_SetWindowTitle(window, title);
 }
 
-void Window::onKeyPressed(SDL_Keycode keyCode) {
+void Window::on_key_pressed(SDL_Keycode keyCode) {
     switch (keyCode) {
         case SDLK_ESCAPE:
             is_running = SDL_FALSE;
@@ -89,4 +99,10 @@ void Window::onKeyPressed(SDL_Keycode keyCode) {
 void Window::set_active_key(SDL_Keycode keycode, bool is_down) {
     is_key_down = is_down;
     active_key = keycode;
+}
+
+void Window::on_mouse_move(int x, int y) {
+    if (!mouse_init) mouse_init = true;
+    mouse_x = x;
+    mouse_y = y;
 }

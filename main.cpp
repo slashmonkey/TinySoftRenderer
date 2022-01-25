@@ -12,12 +12,12 @@
 int main(){
     int width = 800;
     int height = 600;
-    double delta_time;
+    float delta_time;
 
     Vec3f eye(0.0f, 0.0f, 6.0f);
     Vec3f light_pos(-1.f, 0.f, 5.f);
-    Camera camera(eye, Vec3f(0, 0, -5.f),Vec3f (0, 1, 0));
-    camera.set_projection(45, (float)width/height, 0.1, 50);
+    Camera camera(eye, Vec3f(0, 0, 0.f),Vec3f (0, 1, 0));
+    camera.set_projection(45, (float) width, (float)height, 0.1, 50);
 
     Rasterizer rasterizer(width, height);
     rasterizer.set_view(camera.get_view_matrix());
@@ -36,7 +36,7 @@ int main(){
     phongShader->set_material(&material);
     phongShader->set_ambient(&ambient);
     phongShader->set_light(light);
-    phongShader->set_eye_pos(&eye);
+    phongShader->set_eye_pos(eye);
 
     Window window;
     window.init(width, height);
@@ -46,11 +46,13 @@ int main(){
         timer.start();
         rasterizer.clear(Buffers::Color | Buffers::Depth);
 
-        if (window.any_key_down()){
-            camera.process_key_input(window.get_active_key(), delta_time);
-        }
+        if (window.any_key_down())camera.process_key_input(window.get_active_key(), delta_time);
+        if (window.is_mouse_init())
+            camera.process_mouse_input(window.get_mouse_x(), window.get_mouse_y(), window.is_left_mouse_down(), window.is_right_mouse_down(),
+                                       delta_time);
 
         rasterizer.set_view(camera.get_view_matrix());
+        phongShader->set_eye_pos(camera.get_position());
 
         const std::vector<Mesh*>& meshes = rasterizer.get_meshes();
         for (auto mesh : meshes) {
@@ -60,7 +62,7 @@ int main(){
         }
 
         window.update(rasterizer.output());
-        delta_time = timer.elapsed();
+        delta_time = (float) timer.elapsed();
         window.set_title(std::to_string((int)(1/delta_time)).c_str());
     }
     window.stop();

@@ -34,7 +34,7 @@ Color PhongShader::fragment(const VertexOut& vertex_out) {
     Color diffuse_color = light->get_color() * (light_intensity * ( 1.f / r2 ) * diff * material->get_diffuse());
 
     //specular
-    Vec3f eye_dir = (*eye_pos - vertex_out.pos_world).normalize();
+    Vec3f eye_dir = (eye_pos - vertex_out.pos_world).normalize();
     Vec3f h = (eye_dir + light_dir).normalize();
     float spec = std::pow(std::max(0.f, h.dot(vertex_out.normal)), material->get_shininess());
     Color specular_color = light->get_color() * light->get_intensity() * spec * material->get_specular();
