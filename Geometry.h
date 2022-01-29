@@ -12,8 +12,9 @@ public:
     Vertex(Vec4f _pos) : pos(_pos) {}
     Vertex(Vec4f _pos, Color _color) :pos(_pos), color(_color) {}
     Vertex(Vec4f _pos, Color _color, Vec2f _texcoord) :pos(_pos), color(_color),texcoord(_texcoord) {}
-    Vertex(Vec4f _pos, Color _color, Vec3f _normal):pos(_pos), color(_color), normal(_normal) {}
-    Vertex(Vec4f _pos, Vec3f _normal, Vec2f _texcoord) :pos(_pos), normal(_normal), texcoord(_texcoord) {}
+    Vertex(Vec4f _pos, Color _color, Vec3f _normal): pos(_pos), color(_color), normal(_normal) {}
+    Vertex(Vec4f _pos, Vec3f _normal, Vec2f _texcoord) : pos(_pos), normal(_normal), texcoord(_texcoord) {}
+    Vertex(Vec4f _pos, Color _color, Vec3f _normal, Vec2f _texcoord) : pos(_pos), color(_color), normal(_normal), texcoord(_texcoord) {}
     Vertex(const Vertex& rhs):pos(rhs.pos), color(rhs.color), texcoord(rhs.texcoord), normal(rhs.normal) {}
 
     void set_pos(Vec4f _pos) { pos = _pos; }

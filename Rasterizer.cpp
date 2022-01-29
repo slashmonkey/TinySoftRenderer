@@ -363,10 +363,15 @@ VertexOut Rasterizer::interpolated_barycentric(const TriangleOut& triangle, floa
     vertexOut.color = ( triangle.get_v0().color * v0_rhw  * alpha +
                         triangle.get_v1().color * v1_rhw * beta +
                         triangle.get_v2().color * v2_rhw * gamma ) * z;
+
     vertexOut.normal = ( triangle.get_v0().normal * v0_rhw  * alpha +
                          triangle.get_v1().normal * v1_rhw * beta +
                          triangle.get_v2().normal * v2_rhw * gamma ) * z;
-//    vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
+
+    vertexOut.texcoord = ( triangle.get_v0().texcoord * v0_rhw  * alpha +
+                           triangle.get_v1().texcoord * v1_rhw * beta +
+                           triangle.get_v2().texcoord * v2_rhw * gamma ) * z;
+
     vertexOut.pos_world = (triangle.get_v0().pos_world * v0_rhw * alpha +
                           triangle.get_v1().pos_world * v1_rhw * beta +
                           triangle.get_v2().pos_world * v2_rhw * gamma) * z;

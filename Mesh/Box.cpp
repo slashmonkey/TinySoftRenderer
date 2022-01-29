@@ -1,7 +1,5 @@
 
 #include "Box.h"
-#include "../Light.h"
-#include "../Shader/PhongShader.h"
 
 void Box::update_transform(float deltaTime) {
     /*angle += 45 * deltaTime;
