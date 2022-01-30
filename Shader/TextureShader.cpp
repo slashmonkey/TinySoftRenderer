@@ -21,7 +21,7 @@ VertexOut TextureShader::vertex(const Vertex& in) {
 }
 
 Color TextureShader::fragment(const VertexOut& vertex_out) {
-    Color tex = texture->sample_nearest(vertex_out.texcoord);
+    Color tex = texture->sample_bilinear(vertex_out.texcoord);
     return tex;
 }
 

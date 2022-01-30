@@ -12,6 +12,7 @@ public:
     ~Texture2D();
 
     Color sample_nearest(const Vec2f & texcoord) const;
+    Color sample_bilinear(const Vec2f & texcoord) const;
     bool load(const std::string& file_path);
 private:
     int width;
