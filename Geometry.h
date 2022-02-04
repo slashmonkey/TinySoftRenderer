@@ -7,28 +7,28 @@
 
 class Vertex{
 public:
-    Vertex(){ pos = Vec4f(); color = Vec3f(); normal = Vec3f(); texcoord = Vec2f(); }
+    Vertex(){ position = Vec4f(); color = Vec3f(); normal = Vec3f(); texcoord = Vec2f(); }
 
-    Vertex(Vec4f _pos) : pos(_pos) {}
-    Vertex(Vec4f _pos, Color _color) :pos(_pos), color(_color) {}
-    Vertex(Vec4f _pos, Color _color, Vec2f _texcoord) :pos(_pos), color(_color),texcoord(_texcoord) {}
-    Vertex(Vec4f _pos, Color _color, Vec3f _normal): pos(_pos), color(_color), normal(_normal) {}
-    Vertex(Vec4f _pos, Vec3f _normal, Vec2f _texcoord) : pos(_pos), normal(_normal), texcoord(_texcoord) {}
-    Vertex(Vec4f _pos, Color _color, Vec3f _normal, Vec2f _texcoord) : pos(_pos), color(_color), normal(_normal), texcoord(_texcoord) {}
-    Vertex(const Vertex& rhs):pos(rhs.pos), color(rhs.color), texcoord(rhs.texcoord), normal(rhs.normal) {}
+    Vertex(Vec4f _pos) : position(_pos) {}
+    Vertex(Vec4f _pos, Color _color) : position(_pos), color(_color) {}
+    Vertex(Vec4f _pos, Color _color, Vec2f _texcoord) : position(_pos), color(_color), texcoord(_texcoord) {}
+    Vertex(Vec4f _pos, Color _color, Vec3f _normal): position(_pos), color(_color), normal(_normal) {}
+    Vertex(Vec4f _pos, Vec3f _normal, Vec2f _texcoord) : position(_pos), normal(_normal), texcoord(_texcoord) {}
+    Vertex(Vec4f _pos, Color _color, Vec3f _normal, Vec2f _texcoord) : position(_pos), color(_color), normal(_normal), texcoord(_texcoord) {}
+    Vertex(const Vertex& rhs): position(rhs.position), color(rhs.color), texcoord(rhs.texcoord), normal(rhs.normal) {}
 
-    void set_pos(Vec4f _pos) { pos = _pos; }
+    void set_pos(Vec4f _pos) { position = _pos; }
     void set_Normal(Vec3f n) { normal = n; }
     void set_TexCoord(float s, float t) { texcoord = Vec2f(s, t); }
     void set_Color(float r, float g, float b) { color = Color(r, g, b); }
 
-    float x() const { return pos.x; }
-    float y() const { return pos.y; }
-    float z() const { return pos.z; }
-    float w() const { return pos.w; }
+    float x() const { return position.x; }
+    float y() const { return position.y; }
+    float z() const { return position.z; }
+    float w() const { return position.w; }
 
 public:
-    Vec4f pos;
+    Vec4f position;
     Vec3f normal;
     Vec2f texcoord;
     Color color;

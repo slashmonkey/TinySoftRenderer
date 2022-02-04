@@ -8,8 +8,8 @@ void GouraudShader::set_model_matrix(const Mat4f& model) {
 
 VertexOut GouraudShader::vertex(const Vertex& in) {
     VertexOut out;
-    out.pos_world = model * in.pos;
-    out.pos_homo = projection * view * model * in.pos;
+    out.pos_world = model * in.position;
+    out.pos_homo = projection * view * model * in.position;
     out.color = in.color;
     out.normal = invModelMatrix * Vec4f(in.normal);
     out.texcoord = in.texcoord;

@@ -3,8 +3,8 @@
 
 VertexOut SimpleShader::vertex(const Vertex& in) {
     VertexOut out;
-    out.pos_world = model * in.pos;
-    out.pos_homo = projection * view * model * in.pos;
+    out.pos_world = model * in.position;
+    out.pos_homo = projection * view * model * in.position;
     out.color = in.color;
     out.normal = in.normal;
     out.texcoord = in.texcoord;

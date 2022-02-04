@@ -104,7 +104,7 @@ template <typename T> struct Vector4{
     Vector4<T>() : x(T()), y(T()), z(T()), w(static_cast<T>(1)) {}
     Vector4<T>(T _x, T _y, T _z, T _w): x(_x), y(_y), z(_z), w(_w){}
     Vector4<T>(const Vector4<T>& v): x(v.x), y(v.y), z(v.z), w(v.w){}
-    Vector4<T>(const Vector3<T>& v, T _w = static_cast<T>(0)): x(v.x), y(v.y), z(v.z), w(_w){}
+    Vector4<T>(const Vector3<T>& v, T _w = static_cast<T>(1)): x(v.x), y(v.y), z(v.z), w(_w){}
     ~Vector4() = default;
     Vector4<T>& operator =(const Vector4<T> &v){
         if(this != &v) { x = v.x; y = v.y; z = v.z; w = v.w;}

@@ -12,6 +12,7 @@ Texture2D::~Texture2D() {
 
 bool Texture2D::load(const std::string& file_path) {
     if (pixelBuffer) delete pixelBuffer;
+    stbi_set_flip_vertically_on_load(true);
     pixelBuffer = nullptr;
     pixelBuffer = stbi_load(file_path.c_str(), &width, &height, &channel, 0);
     if(pixelBuffer == nullptr)
@@ -22,15 +23,17 @@ bool Texture2D::load(const std::string& file_path) {
 }
 
 Color Texture2D::sample_nearest(const Vec2f& texcoord) const {
-    auto u_img = texcoord.x * (width - 1);
-    auto v_img = texcoord.y * (height - 1);
+    float clamp_x = CLAMP(texcoord.x, 0.f, 1.0f);
+    float clamp_y = CLAMP(texcoord.y, 0.f, 1.0f);
+    auto u_img = clamp_x * (width - 1);
+    auto v_img = clamp_y * (height - 1);
 
-    unsigned int x = 0, y = 0;
-    x = static_cast<unsigned int>(u_img);
-    y = static_cast<unsigned int>(v_img);
+    unsigned int tex_x = 0, tex_y = 0;
+    tex_x = static_cast<unsigned int>(u_img);
+    tex_y = static_cast<unsigned int>(v_img);
 
     int index[1];
-    index[0] = (x * width + y) * channel;
+    index[0] = (tex_y * width + tex_x) * channel;
 
     Color texel (static_cast<float>(pixelBuffer[index[0] + 0]), static_cast<float>(pixelBuffer[index[0] + 1]), static_cast<float>(pixelBuffer[index[0] + 2]));
     return texel;
@@ -79,14 +82,14 @@ Color Texture2D::sample_bilinear(const Vec2f& texcoord) const {
      * u01, u11
      * u00, u10
      * */
-    int u00 = tex_x * width + tex_y;
+    int u00 = tex_y * width + tex_x;
     int u01 = 0;
     int u11 = 0;
     int u10 = 0;
 
-    if ( (tex_y + 1) >= height ){ u01 = u00; } else{ u01 = tex_x * width + tex_y + 1; }
-    if ( (tex_x + 1) >= width ) { u10 = u00; } else{ u10 = (tex_x + 1) * width + tex_y; }
-    if ((tex_y + 1) >= height || (tex_x + 1) >= width) { u11 = u00; }else{ u11 = (tex_x + 1) * width + tex_y + 1; }
+    if ( (tex_y + 1) >= height ){ u01 = u00; } else{ u01 = tex_y * width + tex_x + 1; }
+    if ( (tex_x + 1) >= width ) { u10 = u00; } else{ u10 = (tex_y + 1) * width + tex_x; }
+    if ((tex_y + 1) >= height || (tex_x + 1) >= width) { u11 = u00; }else{ u11 = (tex_y + 1) * width + tex_x + 1; }
 
     Color texels[4] {
         Color(static_cast<float>(pixelBuffer[u00 * channel + 0]), static_cast<float>(pixelBuffer[u00 * channel + 1]), static_cast<float>(pixelBuffer[u00 * channel + 2])),

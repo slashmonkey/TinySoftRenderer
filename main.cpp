@@ -6,10 +6,11 @@
 #include "Timer.h"
 #include "Mesh/Triangle.h"
 #include "Mesh/Box.h"
+#include "Mesh/Plane.h"
+#include "Mesh/ObjModel.h"
 #include "Shader/PhongShader.h"
 #include "Shader/GouraudShader.h"
 #include "Shader/TextureShader.h"
-#include "Mesh/Plane.h"
 #include "Texture2D.h"
 
 int main(){
@@ -17,7 +18,7 @@ int main(){
     int height = 600;
     float delta_time;
 
-    Vec3f eye(0.0f, 1.0f, 6.0f);
+    Vec3f eye(0.0f, 0.0f, 10.0f);
     Vec3f light_pos(-1.f, 0.f, 5.f);
     Camera camera(eye, Vec3f(0, 0, 0.f),Vec3f (0, 1, 0));
     camera.set_projection(45, (float) width, (float)height, 0.1, 50);
@@ -28,7 +29,8 @@ int main(){
     rasterizer.set_viewport(width, height);
 
     std::shared_ptr<IShader> shader = std::make_shared<TextureShader>();
-    Mesh* box = new Plane(shader);
+    Mesh* box = new ObjModel("Assets/Obj/crab.obj", shader);
+//    Mesh* box = new Plane(shader);
     rasterizer.add_mesh(box);
 
     TextureShader* textureShader = dynamic_cast<TextureShader*>(shader.get());
@@ -42,7 +44,8 @@ int main(){
     textureShader->set_eye_pos(eye);
 
     Texture2D* texture2D = new Texture2D();
-    texture2D->load("Assets/Texture/checkerboard.bmp");
+    texture2D->load("Assets/Texture/crab.bmp");
+//    texture2D->load("Assets/Texture/uv_checker.png");
 
     textureShader->set_texture(texture2D);
 
