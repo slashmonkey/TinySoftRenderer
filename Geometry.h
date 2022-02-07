@@ -27,6 +27,11 @@ public:
     float z() const { return position.z; }
     float w() const { return position.w; }
 
+    friend std::ostream& operator<<(std::ostream& s, const Vertex& v) {
+        s << "Vertex(" << v.x() << ", " << v.y() << ", " << v.z() << ")\n";
+        return s;
+    }
+
 public:
     Vec4f position;
     Vec3f normal;

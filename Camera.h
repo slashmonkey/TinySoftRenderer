@@ -50,7 +50,7 @@ private:
     Mat4f mat = Mat4f::identity();
 
     //translation
-    float speed = 5.f;
+    float speed = 30.f;
     void translate(const Vec3f& trans);
 
     float near = 1.0f;

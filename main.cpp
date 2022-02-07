@@ -30,7 +30,6 @@ int main(){
 
     std::shared_ptr<IShader> shader = std::make_shared<TextureShader>();
     Mesh* box = new ObjModel("Assets/Obj/crab.obj", shader);
-//    Mesh* box = new Plane(shader);
     rasterizer.add_mesh(box);
 
     TextureShader* textureShader = dynamic_cast<TextureShader*>(shader.get());
@@ -45,7 +44,6 @@ int main(){
 
     Texture2D* texture2D = new Texture2D();
     texture2D->load("Assets/Texture/crab.bmp");
-//    texture2D->load("Assets/Texture/uv_checker.png");
 
     textureShader->set_texture(texture2D);
 
