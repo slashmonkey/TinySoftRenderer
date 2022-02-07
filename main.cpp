@@ -33,8 +33,8 @@ int main(){
     rasterizer.add_mesh(box);
 
     TextureShader* textureShader = dynamic_cast<TextureShader*>(shader.get());
-    Ambient ambient(Color(255,255,255), 0.5f);
-    Material material(0.9f, 0.4f, 500);
+    Ambient ambient(Color(255,255,255), 0.1f);
+    Material material(0.5f, 0.1f, 100);
 
     Light* light = new DirectionalLight(light_pos, White, 30.f);
     textureShader->set_material(&material);

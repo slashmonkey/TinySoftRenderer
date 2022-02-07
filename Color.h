@@ -31,6 +31,7 @@ public:
 
     template<class T>
     Color operator* (const T t) const { return Color(this->R() * t, this->G() * t, this->B() * t); }
+    Color operator* (Color color) const { return Color(this->R() * color.R(), this->G() * color.G(), this->B() * color.B()); }
     Color operator+ (const Color& color) const {
         return Color(this->R() + color.R(), this->G() + color.G(), this->B() + color.B());
     }

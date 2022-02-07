@@ -22,8 +22,7 @@ VertexOut TextureShader::vertex(const Vertex& in) {
 
 Color TextureShader::fragment(const VertexOut& vertex_out) {
     Color tex = texture->sample_bilinear(vertex_out.texcoord);
-    return tex;
-
+    tex = tex * (1.0f/255.f);
 
     //ambient
     Color ambient_color = ambient->get_color() * ambient->get_intensity();
@@ -43,6 +42,6 @@ Color TextureShader::fragment(const VertexOut& vertex_out) {
     float spec = std::pow(std::max(0.f, h.dot(vertex_out.normal)), material->get_shininess());
     Color specular_color = light->get_color() * light->get_intensity() * spec * material->get_specular();
 
-    return ambient_color +  diffuse_color + specular_color;
+    return (tex) * (ambient_color +  diffuse_color + specular_color);
 }
 
