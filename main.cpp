@@ -18,7 +18,7 @@ int main(){
     int height = 600;
     float delta_time;
 
-    Vec3f eye(0.0f, 0.0f, 10.0f);
+    Vec3f eye(0.0f, 0.0f, 30.0f);
     Vec3f light_pos(-1.f, 0.f, 5.f);
     Camera camera(eye, Vec3f(0, 0, 0.f),Vec3f (0, 1, 0));
     camera.set_projection(45, (float) width, (float)height, 0.1, 50);
@@ -29,11 +29,12 @@ int main(){
     rasterizer.set_viewport(width, height);
 
     std::shared_ptr<IShader> shader = std::make_shared<TextureShader>();
-    Mesh* box = new ObjModel("Assets/Obj/crab.obj", shader);
+    Mesh* box = new ObjModel("Assets/Obj/player.obj", shader);
+//    Mesh* box = new Box(shader);
     rasterizer.add_mesh(box);
 
     TextureShader* textureShader = dynamic_cast<TextureShader*>(shader.get());
-    Ambient ambient(Color(255,255,255), 0.1f);
+    Ambient ambient(Color(255,255,255), 0.8f);
     Material material(0.5f, 0.1f, 100);
 
     Light* light = new DirectionalLight(light_pos, White, 30.f);
@@ -43,7 +44,7 @@ int main(){
     textureShader->set_eye_pos(eye);
 
     Texture2D* texture2D = new Texture2D();
-    texture2D->load("Assets/Texture/crab.bmp");
+    texture2D->load("Assets/Texture/player.png");
 
     textureShader->set_texture(texture2D);
 
@@ -61,6 +62,7 @@ int main(){
                                        delta_time);
 
         rasterizer.set_view(camera.get_view_matrix());
+        rasterizer.set_eye_pos(camera.get_position());
         textureShader->set_eye_pos(camera.get_position());
 
         const std::vector<Mesh*>& meshes = rasterizer.get_meshes();

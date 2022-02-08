@@ -96,12 +96,15 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
     std::vector<Vec3i>& indBuf = ind_buf[indBufId.id];
 
     for(Vec3i ind : indBuf){
-        //! vertex shader stage.
+        // vertex shader stage.
         VertexOut vertexOut[] = {
             shader_ptr->vertex(posBuf[ind[0]]),
             shader_ptr->vertex(posBuf[ind[1]]),
             shader_ptr->vertex(posBuf[ind[2]]),
         };
+
+        // backface culling
+        if(backface_culling(vertexOut[0], vertexOut[1], vertexOut[2])) continue;
 
         for(VertexOut& v : vertexOut){
             perspective_division(v);//NDC
@@ -114,7 +117,7 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
         triangleOut.set_v1(vertexOut[1]);
         triangleOut.set_v2(vertexOut[2]);
 
-        //! fragment shader stage. rasterization
+        // fragment shader stage. rasterization
         if (mode == RenderMode::Wire){
             rasterize_wireframe(triangleOut);
         }else{
@@ -390,4 +393,23 @@ void Rasterizer::set_shader(const std::shared_ptr<IShader>& iShader) {
 
     shader_ptr->set_view_matrix(view);
     shader_ptr->set_proj_matrix(projection);
+}
+
+bool Rasterizer::backface_culling(const VertexOut& v1, const VertexOut& v2, const VertexOut& v3) const {
+    const Vec3f& v1_pos = v1.pos_world;
+    const Vec3f& v2_pos = v2.pos_world;
+    const Vec3f& v3_pos = v3.pos_world;
+
+    Vec3f v12 = v2_pos - v1_pos;
+    Vec3f v23 = v3_pos - v2_pos;
+
+    Vec3f crs = v12.cross(v23);
+    Vec3f dir = eye_pos - v1_pos;
+
+    //CCW as Front Face
+    return (dir.dot(crs) <= 0);
+}
+
+void Rasterizer::set_eye_pos(const Vec3f& _eye_pos) {
+    eye_pos = _eye_pos;
 }

@@ -57,6 +57,8 @@ public:
     void set_viewport(const int& width, const int& height);
     void perspective_division(VertexOut& vertex);
 
+    void set_eye_pos(const Vec3f& _eye_pos);
+
 private:
     // Bresenham's line drawing algorithm
     void draw_line(const VertexOut& begin, const VertexOut& end);
@@ -70,6 +72,9 @@ private:
     //Barycentric
     void barycentric_fill(const TriangleOut& triangleOut);
     VertexOut interpolated_barycentric(const TriangleOut& triangle, float alpha, float beta, float gamma);
+
+    //CCW back face culling
+    bool backface_culling(const VertexOut &v1, const VertexOut &v2, const VertexOut &v3) const;
 
 private:
     std::shared_ptr<FrameBuffer> framebuffer_ptr;
@@ -88,6 +93,8 @@ private:
 
     int get_index(int x, int y) const;
     int get_next_id() { return next_id++; }
+
+    Vec3f eye_pos;
 };
 
 
