@@ -44,9 +44,9 @@ void Camera::look_at(Vec3f& from, Vec3f& to, Vec3f& upDir) {
     Mat4f mat4f = Mat4f::identity();
 
     Mat4f mr = Mat4f::identity();
-    mr.set_row(Vec3f(left.x, left.y, left.z), 0);
-    mr.set_row(Vec3f(up.x, up.y, up.z), 1);
-    mr.set_row(Vec3f(forward.x, forward.y, forward.z), 2);
+    mr.set_row(Vec4f(left.x, left.y, left.z, 0.f), 0);
+    mr.set_row(Vec4f(up.x, up.y, up.z, 0.f), 1);
+    mr.set_row(Vec4f(forward.x, forward.y, forward.z, 0.f), 2);
 
     Mat4f mt = Mat4f::identity();
     mt.set_translation(Vec3f(-from.x,-from.y, -from.z));
