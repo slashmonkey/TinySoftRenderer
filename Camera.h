@@ -23,6 +23,8 @@ public:
     Mat4f get_view_matrix() const{ return view; }
     Mat4f get_projection_matrix() const{ return projection; }
     Vec3f get_position() { return position; }
+    float get_near() { return near; }
+    float get_far() {return far; }
 
     void process_key_input(SDL_Keycode keyCode, float deltaTime);
     void process_mouse_input(int x, int y, bool leftMouseDown, bool rightMouseDown, float delta_time);
@@ -50,7 +52,7 @@ private:
     Mat4f mat = Mat4f::identity();
 
     //translation
-    float speed = 30.f;
+    float speed = 1.f;
     void translate(const Vec3f& trans);
 
     float near = 1.0f;

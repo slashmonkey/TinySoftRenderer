@@ -71,7 +71,7 @@ template <typename T> struct Vector3{
 
     T norm() const{return std::sqrt(x*x + y*y + z*z);}
     Vector3<T>& normalize() { T norm = this->norm(); assert(norm != 0); norm = 1/norm; *this = *this * norm; return *this; }
-    T dot(const Vector3<T> v) {return x * v.x + y*v.y + z*v.z;}
+    T dot(const Vector3<T>& v) {return x * v.x + y*v.y + z*v.z;}
     Vector3<T> cross(const Vector3<T>& v) {
         T m1, m2, m3;
         m1 = y * v.z - z * v.y;
@@ -113,6 +113,7 @@ template <typename T> struct Vector4{
 
     T norm() const{return std::sqrt(x*x + y*y + z*z);}
     Vector4<T>& normalize() { T norm = this->norm(); assert(norm != 0); *this = *this * 1/norm; return *this; }
+    T dot(const Vector4<T>& v) const {return x*v.x + y*v.y + z*v.z + w*v.w;}
     Vector4<T> operator +(const Vector4& v) const { return Vector4<T>(x + v.x, y + v.y, z + v.z, w + v.w);}
     Vector4<T> operator -(const Vector4& v) const { return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v.w);}
     Vector4<T> operator *(const Vector4& v) const { return Vector4<T>(x * v.x, y * v.y, z * v.z, w * v.w);}

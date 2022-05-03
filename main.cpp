@@ -27,11 +27,13 @@ int main(){
     rasterizer.set_view(camera.get_view_matrix());
     rasterizer.set_projection(camera.get_projection_matrix());
     rasterizer.set_viewport(width, height);
+    rasterizer.set_near_far(camera.get_near(), camera.get_far());
 
     std::shared_ptr<IShader> shader = std::make_shared<TextureShader>();
-    Mesh* box = new ObjModel("Assets/Obj/crab.obj", shader);
-//    Mesh* box = new Box(shader);
-    rasterizer.add_mesh(box);
+//    Mesh* mesh = new ObjModel("Assets/Obj/crab.obj", shader);
+    Mesh* mesh = new Box(shader);
+//    Mesh* mesh = new Triangle(shader);
+    rasterizer.add_mesh(mesh);
 
     TextureShader* textureShader = dynamic_cast<TextureShader*>(shader.get());
     Ambient ambient(Color(255,255,255), 0.8f);
@@ -44,7 +46,8 @@ int main(){
     textureShader->set_eye_pos(eye);
 
     Texture2D* texture2D = new Texture2D();
-    texture2D->load("Assets/Texture/crab.bmp");
+    texture2D->load("Assets/Texture/wall.jpg");
+//    texture2D->load("Assets/Texture/crab.bmp");
 
     textureShader->set_texture(texture2D);
 
@@ -69,7 +72,7 @@ int main(){
         for (auto mesh : meshes) {
             rasterizer.set_shader(mesh->shader);
             mesh->update_transform(delta_time);
-            rasterizer.draw(mesh->vertex_buf_id, mesh->ind_buf_id, RenderMode::Fill);
+            rasterizer.draw(mesh->vertex_buf_id, mesh->ind_buf_id, RenderMode::Wire);
         }
 
         window.update(rasterizer.output());
@@ -78,7 +81,7 @@ int main(){
     }
     window.stop();
 
-    delete box;
+    delete mesh;
     delete light;
     return 0;
 }

@@ -57,6 +57,7 @@ public:
     void set_viewport(const int& width, const int& height);
     void perspective_division(VertexOut& vertex);
 
+    void set_near_far(float _near, float _far) { near = _near; far = _far; }
     void set_eye_pos(const Vec3f& _eye_pos);
 
 private:
@@ -75,6 +76,9 @@ private:
 
     //CCW back face culling
     bool backface_culling(const VertexOut &v1, const VertexOut &v2, const VertexOut &v3) const;
+
+    //clipping in homogeneous space
+    void homo_clipping(std::vector<TriangleOut>& triangle_list, const Vec4f& plane, const Vec4f& normal);
 
 private:
     std::shared_ptr<FrameBuffer> framebuffer_ptr;
@@ -95,6 +99,8 @@ private:
     int get_next_id() { return next_id++; }
 
     Vec3f eye_pos;
+    float near;
+    float far;
 };
 
 

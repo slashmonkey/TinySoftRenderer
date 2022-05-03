@@ -106,23 +106,35 @@ void Rasterizer::draw(Vertex_Buf_ID posBufId, Ind_Buf_ID indBufId, RenderMode mo
         // backface culling
         if(backface_culling(vertexOut[0], vertexOut[1], vertexOut[2])) continue;
 
-        for(VertexOut& v : vertexOut){
-            perspective_division(v);//NDC
-            v.pos_homo = viewport * v.pos_homo;//viewport transformation
-        }
+        TriangleOut triangleOut(vertexOut[0], vertexOut[1], vertexOut[2]);
+        std::vector<TriangleOut> triangleList = {triangleOut};
+        //Homo Clipping
+        homo_clipping(triangleList, Vec4f(0.f, 0.f, 1.f, 1.f), Vec4f(0.f, 0.f, 1.f, 0.f));//near plane clipping
+        for (TriangleOut& triangle: triangleList) {
+            VertexOut v0 = triangle.get_v0();
+            VertexOut v1 = triangle.get_v1();
+            VertexOut v2 = triangle.get_v2();
 
-        TriangleOut triangleOut;
+            perspective_division(v0);//NDC
+            v0.pos_homo = viewport * v0.pos_homo;//viewport transformation
 
-        triangleOut.set_v0(vertexOut[0]);
-        triangleOut.set_v1(vertexOut[1]);
-        triangleOut.set_v2(vertexOut[2]);
+            perspective_division(v1);
+            v1.pos_homo = viewport * v1.pos_homo;
 
-        // fragment shader stage. rasterization
-        if (mode == RenderMode::Wire){
-            rasterize_wireframe(triangleOut);
-        }else{
-            barycentric_fill(triangleOut);
-            //edge_walking_fill(triangleOut);
+            perspective_division(v2);
+            v2.pos_homo = viewport * v2.pos_homo;
+
+            triangle.set_v0(v0);
+            triangle.set_v1(v1);
+            triangle.set_v2(v2);
+
+            // fragment shader stage. rasterization
+            if (mode == RenderMode::Wire){
+                rasterize_wireframe(triangle);
+            }else{
+                barycentric_fill(triangle);
+//                edge_walking_fill(triangle);
+            }
         }
     }
 }
@@ -351,7 +363,7 @@ void Rasterizer::clear(Buffers buffer) {
     vertexOut.texcoord = v1.texcoord.lerp(v2.texcoord, weight);
     vertexOut.pos_world = v1.pos_world.lerp(v2.pos_world, weight);
     vertexOut.pos_homo = v1.pos_homo.lerp(v2.pos_homo, weight);
-    vertexOut.rhw = v1.rhw * (1-weight) + v2.rhw * weight;
+    vertexOut.rhw = 1.0f/vertexOut.pos_homo.w;
     return vertexOut;
 }
 
@@ -412,4 +424,98 @@ bool Rasterizer::backface_culling(const VertexOut& v1, const VertexOut& v2, cons
 
 void Rasterizer::set_eye_pos(const Vec3f& _eye_pos) {
     eye_pos = _eye_pos;
+}
+
+void Rasterizer::homo_clipping(std::vector<TriangleOut>& triangle_list, const Vec4f& plane, const Vec4f& normal) {
+    for (auto it = triangle_list.begin(); it != triangle_list.end();) {
+        TriangleOut& tri = *it;
+        VertexOut v0 = tri.get_v0();
+        VertexOut v1 = tri.get_v1();
+        VertexOut v2 = tri.get_v2();
+
+        float d0 = plane.dot(v0.pos_homo);
+        float d1 = plane.dot(v1.pos_homo);
+        float d2 = plane.dot(v2.pos_homo);
+
+        bool out0 = d0 < 0;
+        bool out1 = d1 < 0;
+        bool out2 = d2 < 0;
+
+        std::vector<float> vert_dis = {d0 , d1 , d2};
+        std::vector<float> vert_dis_positive = {std::abs(d0), std::abs(d1), std::abs(d2)};
+        std::vector<bool> out_list = {out0 , out1 , out2};
+        int out_count = 0;
+        for (int i = 0; i < out_list.size() ; ++ i) {
+            bool out = out_list[i];
+            out_count = out_count + (out ? 1 : 0);
+        }
+
+        std::vector<VertexOut> vertices = {v0, v1 , v2};
+
+        if (out_count == 0){
+            ++it;
+            continue;
+        }else if (out_count == 2){
+            //form a triangle
+            std::vector<int> out_indices;
+            int in_vertex_idx = 0;
+            for (int i = 0; i < out_list.size(); ++ i) {
+                if (out_list[i]) {
+                    out_indices.push_back(i);
+                } else {
+                    in_vertex_idx = i;
+                }
+            }
+
+            VertexOut &in_vert = vertices.at(in_vertex_idx);
+
+            for (int i = 0; i < out_indices.size(); ++i) {
+                int index = out_indices[i];
+                VertexOut& out_vert = vertices.at(index);
+                float out_dis = vert_dis_positive[index];
+                float in_dis = vert_dis_positive[in_vertex_idx];
+                float factor = in_dis / (in_dis + out_dis);
+                VertexOut new_vert = lerp(in_vert, out_vert, factor);
+                vertices[index] = new_vert;
+            }
+
+            tri.set_v0(vertices[0]);
+            tri.set_v1(vertices[1]);
+            tri.set_v2(vertices[2]);
+            ++it;
+        }else if(out_count == 1){
+            //a quad to form two triangles
+            std::vector<int> in_indices;
+            int out_vertex_idx = 0;
+            for (int i = 0; i < out_list.size(); ++ i) {
+                if (!out_list[i]) {
+                    in_indices.push_back(i);
+                } else {
+                    out_vertex_idx = i;
+                }
+            }
+            VertexOut& out_vert = vertices.at(out_vertex_idx);
+            std::vector<VertexOut> vert_new_list;
+            for (int i = 0; i < in_indices.size(); ++i) {
+                int index = in_indices[i];
+                VertexOut in_vert = vertices[index];
+                float in_dis = vert_dis_positive[index];
+                float out_dis = vert_dis_positive[out_vertex_idx];
+                float factor = in_dis / (in_dis + out_dis);
+                VertexOut new_vert = lerp(in_vert, out_vert, factor);
+                vert_new_list.push_back(in_vert);
+                vert_new_list.push_back(new_vert);
+            }
+            tri.set_v0(vert_new_list[0]);
+            tri.set_v1(vert_new_list[1]);
+            tri.set_v2(vert_new_list[2]);
+
+            TriangleOut triNew(vert_new_list[1] , vert_new_list[2] , vert_new_list[3]);
+            it = triangle_list.insert(it + 1, triNew);
+            ++it;
+
+        }else if (out_count == 3) {
+            it = triangle_list.erase(it);
+        }
+    }
 }
