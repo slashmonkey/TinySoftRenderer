@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "Texture2D.h"
-#include "Dependencies/stb_image.h"
+#include "../Dependencies/stb_image.h"
 
 Texture2D::~Texture2D() {
     stbi_image_free(pixelBuffer);

@@ -43,8 +43,8 @@ class VertexOut{
 public:
     //Reciprocal of the Homogeneous W
     float rhw = 1.f;
-    Vec4f pos_world;    //世界变换后的坐标
-    Vec4f pos_homo;     //投影变换后的坐标
+    Vec4f pos_world;
+    Vec4f pos_homo;
     Color color;
     Vec3f normal;
     Vec2f texcoord;
